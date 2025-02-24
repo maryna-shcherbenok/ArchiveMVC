@@ -1,0 +1,47 @@
+﻿@model ArchiveDomain.Model.DocumentInstance
+
+@{
+    ViewData["Title"] = "Редагувати екземпляр документа";
+}
+
+<h1>Редагувати екземпляр</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="DocumentId" />
+
+            <div class="form-group">
+                <label asp-for="InventoryNumber" class="control-label">Інвентарний номер</label>
+                <input asp-for="InventoryNumber" class="form-control" placeholder="Введіть унікальний інвентарний номер" />
+                <span asp-validation-for="InventoryNumber" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="State" class="control-label">Стан</label>
+                <input asp-for="State" class="form-control" placeholder="Стан документа (Напр.: Новий, Втрата, Пошкоджений)" />
+                <span asp-validation-for="State" class="text-danger"></span>
+            </div>
+
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Available" /> Доступний
+                </label>
+            </div>
+
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary">Змінити</button>
+                <a asp-action="Index" class="btn btn-secondary">Скасувати</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

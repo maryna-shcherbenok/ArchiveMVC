@@ -1,0 +1,46 @@
+﻿@model ArchiveDomain.Model.Document
+
+@{
+    ViewData["Title"] = "Видалити документ";
+}
+
+<h1>Видалити документ</h1>
+
+<h3>Ви впевнені, що хочете видалити цей документ?</h3>
+
+@if (!string.IsNullOrEmpty(ViewData["ErrorMessage"] as string))
+{
+    <div class="alert alert-danger">
+        @ViewData["ErrorMessage"]
+    </div>
+}
+
+<div>
+    <h4></h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">Дата публікації документа:</dt>
+        <dd class="col-sm-10">@Model.PublicationDate</dd>
+
+        <dt class="col-sm-2">Мова документа:</dt>
+        <dd class="col-sm-10">@Model.Language</dd>
+
+        <dt class="col-sm-2">Інформація про документ:</dt>
+        <dd class="col-sm-10">@Model.Info</dd>
+
+        <dt class="col-sm-2">Кількість примірників документів:</dt>
+        <dd class="col-sm-10">@Model.Quantity</dd>
+
+        @if (Model.Type != null)
+        {
+            <dt class="col-sm-2">Тип документа:</dt>
+            <dd class="col-sm-10">@Model.Type.Name</dd>
+        }
+    </dl>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-primary">Видалити</button>
+        <a asp-action="Index" class="btn btn-secondary">Скасувати</a>
+    </form>
+</div>

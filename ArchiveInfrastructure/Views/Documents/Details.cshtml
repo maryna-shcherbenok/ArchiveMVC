@@ -1,0 +1,86 @@
+﻿@model ArchiveDomain.Model.Document
+
+@{
+    ViewData["Title"] = "Деталі документа";
+}
+
+<h1>Деталі документа</h1>
+
+<div>
+    <h4>Документ</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Title)</dt>
+        <dd class="col-sm-10">@Html.DisplayFor(model => model.Title)</dd>
+
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.PublicationDate)</dt>
+        <dd class="col-sm-10">@Html.DisplayFor(model => model.PublicationDate)</dd>
+
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Language)</dt>
+        <dd class="col-sm-10">@Html.DisplayFor(model => model.Language)</dd>
+
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Info)</dt>
+        <dd class="col-sm-10">@Html.DisplayFor(model => model.Info)</dd>
+
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Quantity)</dt>
+        <dd class="col-sm-10">@Html.DisplayFor(model => model.Quantity)</dd>
+
+        @if (Model.Type != null)
+        {
+            <dt class="col-sm-2">Тип документа:</dt>
+            <dd class="col-sm-10">@Model.Type.Name</dd>
+        }
+    </dl>
+</div>
+
+<h3>Автори</h3>
+@if (Model.AuthorDocuments != null && Model.AuthorDocuments.Any())
+{
+    <ul>
+        @foreach (var authorDoc in Model.AuthorDocuments)
+        {
+            <li>@authorDoc.Author.Name</li>
+        }
+    </ul>
+}
+else { <p>Автори не вказані.</p> }
+
+<h3>Категорії</h3>
+@if (Model.CategoryDocuments != null && Model.CategoryDocuments.Any())
+{
+    <ul>
+        @foreach (var categoryDoc in Model.CategoryDocuments)
+        {
+            <li>@categoryDoc.Category.Name</li>
+        }
+    </ul>
+}
+
+<h3>Екземпляри документа</h3>
+@if (Model.DocumentInstances != null && Model.DocumentInstances.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Інвентарний номер</th>
+                <th>Стан</th>
+                <th>Доступність</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var instance in Model.DocumentInstances)
+            {
+                <tr>
+                    <td>@instance.InventoryNumber</td>
+                    <td>@instance.State</td>
+                    <td>@(instance.Available ? "Доступний" : "Недоступний")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<div class="mt-4">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Редагувати</a>
+    <a asp-action="Index" class="btn btn-secondary">Назад до списку</a>
+</div>

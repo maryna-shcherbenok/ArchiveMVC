@@ -1,0 +1,67 @@
+﻿@model ArchiveDomain.Model.Category
+
+@{
+    ViewData["Title"] = "Деталі категорії";
+}
+
+<h1>Деталі категорії</h1>
+
+<div>
+    <h4>Категорія</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+    </dl>
+</div>
+
+<h3>Документи у цій категорії</h3>
+@if (Model.CategoryDocuments != null && Model.CategoryDocuments.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Назва</th>
+                <th>Дата публікації</th>
+                <th>Мова</th>
+                <th>Кількість примірників</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var categoryDoc in Model.CategoryDocuments)
+            {
+                <tr>
+                    <td>@categoryDoc.Document.Title</td>
+                    <td>@categoryDoc.Document.PublicationDate</td>
+                    <td>@categoryDoc.Document.Language</td>
+                    <td>@categoryDoc.Document.Quantity</td>
+                    <td>
+                        <a asp-action="Details" asp-controller="Documents" asp-route-id="@categoryDoc.Document.Id" class="btn btn-info btn-sm">
+                            Переглянути
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>У цій категорії немає документів.</p>
+}
+
+<div class="mt-3">
+    <a asp-action="Create" asp-controller="Documents" asp-route-categoryId="@Model.Id" class="btn btn-primary">
+        Додати новий документ
+    </a>
+</div>
+
+<div class="mt-3">
+    <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-warning">Редагувати</a>
+    <a asp-action="Index" class="btn btn-secondary">Повернутися до списку</a>
+</div>

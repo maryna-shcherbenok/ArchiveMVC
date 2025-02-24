@@ -1,0 +1,126 @@
+﻿@model IEnumerable<ArchiveDomain.Model.Document>
+
+@{
+    ViewData["Title"] = "Список документів";
+}
+
+<h1>Пошук та фільтрація документів</h1>
+
+@if (ViewBag.FilterType != null)
+{
+    <h3>@ViewBag.FilterType: @ViewBag.FilterValue</h3>
+}
+
+<h4>Список документів</h4>
+
+<form asp-action="Index" method="get">
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <label>Назва</label>
+            <input type="text" name="title" class="form-control" value="@Context.Request.Query["title"]" />
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <label>Мова</label>
+            <input type="text" name="language" class="form-control" value="@Context.Request.Query["language"]" />
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <label>Тип документа</label>
+            <select name="typeId" class="form-control">
+                <option value="">Всі</option>
+                @if (ViewBag.DocumentTypes != null)
+                {
+                    @foreach (var type in ViewBag.DocumentTypes)
+                    {
+                        <option value="@type.Id" selected="@(type.Id.ToString() == Context.Request.Query["typeId"] ? "selected" : null)">
+                            @type.Name
+                        </option>
+                    }
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <label>Автор</label>
+            <select name="authorId" class="form-control">
+                <option value="">Всі</option>
+                @if (ViewBag.Authors != null)
+                {
+                    @foreach (var author in ViewBag.Authors)
+                    {
+                        <option value="@author.Id" selected="@(author.Id.ToString() == Context.Request.Query["authorId"] ? "selected" : null)">
+                            @author.Name
+                        </option>
+                    }
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <label>Категорія</label>
+            <select name="categoryId" class="form-control">
+                <option value="">Всі</option>
+                @if (ViewBag.Categories != null)
+                {
+                    @foreach (var category in ViewBag.Categories)
+                    {
+                        <option value="@category.Id" selected="@(category.Id.ToString() == Context.Request.Query["categoryId"] ? "selected" : null)">
+                            @category.Name
+                        </option>
+                    }
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <button type="submit" class="btn btn-primary">Пошук</button>
+            <a asp-action="Index" class="btn btn-secondary">Скинути</a>
+        </div>
+    </div>
+</form>
+
+<p>
+    <a asp-action="Create">Додати новий документ</a>
+</p>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Title)</th>
+            <th>@Html.DisplayNameFor(model => model.PublicationDate)</th>
+            <th>@Html.DisplayNameFor(model => model.Language)</th>
+            <th>@Html.DisplayNameFor(model => model.Quantity)</th>
+            <th>Тип документа</th>
+            <th>Дії</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                <td>@Html.DisplayFor(modelItem => item.PublicationDate)</td>
+                <td>@Html.DisplayFor(modelItem => item.Language)</td>
+                <td>@Html.DisplayFor(modelItem => item.Quantity)</td>
+                <td>@(item.Type != null ? item.Type.Name : "Без типу")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Редагувати</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Деталі</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Видалити</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+

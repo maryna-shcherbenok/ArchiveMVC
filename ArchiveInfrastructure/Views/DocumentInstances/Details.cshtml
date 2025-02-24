@@ -1,0 +1,30 @@
+﻿@model ArchiveDomain.Model.DocumentInstance
+
+@{
+    ViewData["Title"] = "Деталі екземпляра";
+}
+
+<h1>Деталі екземпляра</h1>
+
+<div>
+    <h4>Інформація про екземпляр</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">Інвентарний номер:</dt>
+        <dd class="col-sm-10">@Model.InventoryNumber</dd>
+
+        <dt class="col-sm-2">Стан:</dt>
+        <dd class="col-sm-10">@Model.State</dd>
+
+        <dt class="col-sm-2">Доступність:</dt>
+        <dd class="col-sm-10">@(Model.Available ? "Доступний" : "Недоступний")</dd>
+
+        <dt class="col-sm-2">Документ:</dt>
+        <dd class="col-sm-10">@Model.Document.Title</dd>
+    </dl>
+</div>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Редагувати</a>
+    <a asp-action="Index" class="btn btn-secondary">Скасував</a>
+</div>

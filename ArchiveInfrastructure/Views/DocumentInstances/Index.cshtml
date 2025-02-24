@@ -1,0 +1,81 @@
+﻿@model IEnumerable<ArchiveDomain.Model.DocumentInstance>
+
+@{
+    ViewData["Title"] = "Список екземплярів документів";
+}
+
+<h1>Список екземплярів документів</h1>
+
+<form asp-action="Index" method="get" class="row mb-3">
+    <div class="col-md-3">
+        <label>Інвентарний номер</label>
+        <input type="text" name="inventoryNumber" class="form-control" value="@Context.Request.Query["inventoryNumber"]" />
+    </div>
+    <div class="col-md-3">
+        <label>Стан</label>
+        <input type="text" name="state" class="form-control" value="@Context.Request.Query["state"]" />
+    </div>
+    <div class="col-md-3">
+        <label>Доступність</label>
+        <select name="available" class="form-control">
+            <option value="">Всі</option>
+            <option value="true" selected="@(Context.Request.Query["available"] == "true")">Доступні</option>
+            <option value="false" selected="@(Context.Request.Query["available"] == "false")">Недоступні</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label>Документ</label>
+        <select name="documentId" class="form-control">
+            <option value="">Всі</option>
+            @foreach (var doc in ViewBag.DocumentList)
+            {
+                <option value="@doc.Value" selected="@(doc.Value == Context.Request.Query["documentId"])">@doc.Text</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3 mt-4">
+        <button type="submit" class="btn btn-primary">Знайти</button>
+        <a asp-action="Index" class="btn btn-secondary">Скинути</a>
+    </div>
+</form>
+
+<p>
+    <a asp-action="Create">Додати новий екземпляр</a>
+</p>
+
+<table class="table table-bordered">
+    <thead class="thead-dark">
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.InventoryNumber)</th>
+            <th>@Html.DisplayNameFor(model => model.State)</th>
+            <th>@Html.DisplayNameFor(model => model.Available)</th>
+            <th>Документ</th>
+            <th>Дії</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.InventoryNumber)</td>
+                <td>@Html.DisplayFor(modelItem => item.State)</td>
+                <td>
+                    @if (item.Available)
+                    {
+                        <span>Доступний</span>
+                    }
+                    else
+                    {
+                        <span>Недоступний</span>
+                    }
+                </td>
+                <td>@(item.Document != null ? item.Document.Title : "Без документа")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Редагувати</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Деталі</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Видалити</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
