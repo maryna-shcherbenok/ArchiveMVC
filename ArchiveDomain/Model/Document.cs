@@ -19,12 +19,14 @@ public partial class Document: Entity
     public string? Info { get; set; }
 
     [Required(ErrorMessage = "Поле не повинно бути порожнім!")]
-    [Display(Name = "Автор документа")]
+    [Display(Name = "Кількість екземплярів")]
     public int Quantity { get; set; }
 
     [Required(ErrorMessage = "Поле не повинно бути порожнім!")]
-    [Display(Name = "Автор документа")]
+    [Display(Name = "Тип документа")]
     public int TypeId { get; set; }
+
+    public virtual DocumentType? Type { get; set; } = null!;
 
     public virtual ICollection<AuthorDocument> AuthorDocuments { get; set; } = new List<AuthorDocument>();
 
@@ -32,5 +34,4 @@ public partial class Document: Entity
 
     public virtual ICollection<DocumentInstance> DocumentInstances { get; set; } = new List<DocumentInstance>();
 
-    public virtual DocumentType? Type { get; set; }
 }

@@ -215,19 +215,43 @@ public class DocumentsController : Controller
     {
         var document = await _context.Documents
             .Include(d => d.DocumentInstances)
+                .ThenInclude(di => di.ReservationDocuments) // Завантажуємо бронювання екземплярів
             .Include(d => d.AuthorDocuments)
             .Include(d => d.CategoryDocuments)
             .FirstOrDefaultAsync(d => d.Id == id);
 
         if (document == null) return NotFound();
 
+        // 🔹 1. Знаходимо всі бронювання, пов'язані з екземплярами документа
+        var reservationIds = document.DocumentInstances
+            .SelectMany(di => di.ReservationDocuments)
+            .Select(rd => rd.ReservationId)
+            .Distinct()
+            .ToList();
+
+        if (reservationIds.Any())
+        {
+            var reservationsToRemove = await _context.Reservations
+                .Where(r => reservationIds.Contains(r.Id))
+                .Include(r => r.ReservationDocuments)
+                .ToListAsync();
+
+            // 🔹 Видаляємо всі бронювання та їх зв’язки
+            _context.ReservationDocuments.RemoveRange(reservationsToRemove.SelectMany(r => r.ReservationDocuments));
+            _context.Reservations.RemoveRange(reservationsToRemove);
+        }
+
+        // 🔹 2. Видаляємо всі екземпляри документа
         if (document.DocumentInstances.Any())
         {
             _context.DocumentInstances.RemoveRange(document.DocumentInstances);
         }
 
+        // 🔹 3. Видаляємо зв'язки з авторами та категоріями
         _context.AuthorDocuments.RemoveRange(document.AuthorDocuments);
         _context.CategoryDocuments.RemoveRange(document.CategoryDocuments);
+
+        // 🔹 4. Видаляємо сам документ
         _context.Documents.Remove(document);
 
         await _context.SaveChangesAsync();

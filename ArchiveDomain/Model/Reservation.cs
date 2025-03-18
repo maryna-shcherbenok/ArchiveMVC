@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace ArchiveDomain.Model;
+﻿namespace ArchiveDomain.Model;
 
 public partial class Reservation: Entity
 {
@@ -13,5 +10,5 @@ public partial class Reservation: Entity
 
     public virtual ICollection<ReservationDocument> ReservationDocuments { get; set; } = new List<ReservationDocument>();
 
-    public virtual User User { get; set; } = null!;
+    public virtual User? User { get; set; } = null!;
 }

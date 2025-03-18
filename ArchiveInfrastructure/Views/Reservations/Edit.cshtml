@@ -1,44 +1,46 @@
 ﻿@model ArchiveDomain.Model.Reservation
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Редагувати бронювання";
 }
 
-<h1>Edit</h1>
+<h1>Редагувати бронювання</h1>
 
-<h4>Reservation</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="UserId" class="control-label"></label>
-                <select asp-for="UserId" class="form-control" asp-items="ViewBag.UserId"></select>
-                <span asp-validation-for="UserId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ReservationStartDate" class="control-label"></label>
-                <input asp-for="ReservationStartDate" class="form-control" />
-                <span asp-validation-for="ReservationStartDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ReservationEndDate" class="control-label"></label>
-                <input asp-for="ReservationEndDate" class="form-control" />
-                <span asp-validation-for="ReservationEndDate" class="text-danger"></span>
-            </div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+<form asp-action="Edit" method="post">
+    <div class="form-group">
+        <label asp-for="UserId" class="control-label">Користувач</label>
+        <select asp-for="UserId" class="form-control" asp-items="ViewBag.UserId"></select>
+        <span asp-validation-for="UserId" class="text-danger"></span>
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+    <div class="form-group">
+        <label asp-for="ReservationStartDate" class="control-label">Дата початку</label>
+        <input asp-for="ReservationStartDate" class="form-control" type="date" />
+        <span asp-validation-for="ReservationStartDate" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ReservationEndDate" class="control-label">Дата завершення</label>
+        <input asp-for="ReservationEndDate" class="form-control" type="date" />
+        <span asp-validation-for="ReservationEndDate" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="documentInstanceIds" class="control-label">Зарезервовані екземпляри</label>
+        <select name="documentInstanceIds" class="form-control" multiple="multiple" asp-items="ViewBag.DocumentInstances"></select>
+    </div>
+
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group mt-3">
+        <button type="submit" class="btn btn-primary">Зберегти</button>
+        <a asp-action="Index" class="btn btn-secondary">Скасувати</a>
+    </div>
+</form>
+
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

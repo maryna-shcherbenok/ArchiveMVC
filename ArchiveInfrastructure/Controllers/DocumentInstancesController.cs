@@ -177,16 +177,31 @@ public class DocumentInstancesController : Controller
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
         var documentInstance = await _context.DocumentInstances
+            .Include(di => di.ReservationDocuments)
+                .ThenInclude(rd => rd.Reservation)
             .FirstOrDefaultAsync(di => di.Id == id);
 
         if (documentInstance == null) return NotFound();
 
         int documentId = documentInstance.DocumentId;
 
+        // 🔹 Видаляємо всі пов’язані бронювання
+        var reservationsToDelete = documentInstance.ReservationDocuments
+            .Select(rd => rd.Reservation)
+            .Distinct()
+            .ToList();
+
+        foreach (var reservation in reservationsToDelete)
+        {
+            _context.ReservationDocuments.RemoveRange(reservation.ReservationDocuments);
+            _context.Reservations.Remove(reservation);
+        }
+
+        // 🔹 Видаляємо сам екземпляр документа
         _context.DocumentInstances.Remove(documentInstance);
         await _context.SaveChangesAsync();
 
-        // Перевіряємо, чи залишилися екземпляри цього документа, якщо ні, то видаляємо і сам документ 
+        // 🔹 Перевіряємо, чи залишилися інші екземпляри цього документа
         var remainingInstances = await _context.DocumentInstances
             .Where(di => di.DocumentId == documentId)
             .CountAsync();
@@ -208,7 +223,7 @@ public class DocumentInstancesController : Controller
         }
         else
         {
-            // А якщо є ще екземпляри, просто зменшуємо Quantity
+            // 🔹 Якщо є ще екземпляри, зменшуємо Quantity
             var document = await _context.Documents.FindAsync(documentId);
             if (document != null && document.Quantity > 1)
             {
@@ -219,4 +234,5 @@ public class DocumentInstancesController : Controller
 
         return RedirectToAction(nameof(Index));
     }
+
 }

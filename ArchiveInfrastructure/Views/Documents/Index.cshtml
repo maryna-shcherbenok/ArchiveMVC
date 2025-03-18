@@ -4,14 +4,14 @@
     ViewData["Title"] = "Список документів";
 }
 
-<h1>Пошук та фільтрація документів</h1>
+<h1>Список документів</h1>
 
 @if (ViewBag.FilterType != null)
 {
     <h3>@ViewBag.FilterType: @ViewBag.FilterValue</h3>
 }
 
-<h4>Список документів</h4>
+<h4>Пошук та фільтрація документів</h4>
 
 <form asp-action="Index" method="get">
     <div class="row mb-3">
@@ -102,7 +102,7 @@
             <th>@Html.DisplayNameFor(model => model.Language)</th>
             <th>@Html.DisplayNameFor(model => model.Quantity)</th>
             <th>Тип документа</th>
-            <th>Дії</th>
+            <th class="actions-column">Дії</th>
         </tr>
     </thead>
     <tbody>
@@ -114,7 +114,7 @@
                 <td>@Html.DisplayFor(modelItem => item.Language)</td>
                 <td>@Html.DisplayFor(modelItem => item.Quantity)</td>
                 <td>@(item.Type != null ? item.Type.Name : "Без типу")</td>
-                <td>
+                <td class="actions-column">
                     <a asp-action="Edit" asp-route-id="@item.Id">Редагувати</a> |
                     <a asp-action="Details" asp-route-id="@item.Id">Деталі</a> |
                     <a asp-action="Delete" asp-route-id="@item.Id">Видалити</a>

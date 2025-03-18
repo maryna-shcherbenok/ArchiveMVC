@@ -43,15 +43,16 @@
 
             <div class="form-group">
                 <label for="authorIds" class="control-label">Автори документа</label>
-                <select name="authorIds" class="form-control" multiple="multiple" asp-items="ViewBag.AuthorList"></select>
+                <select id="authorSelect" name="authorIds" class="form-control" multiple asp-items="ViewBag.AuthorList"></select>
             </div>
 
             <div class="form-group">
                 <label for="categoryIds" class="control-label">Категорії документа</label>
-                <select name="categoryIds" class="form-control" multiple="multiple" asp-items="ViewBag.CategoryList"></select>
+                <select id="categorySelect" name="categoryIds" class="form-control" multiple asp-items="ViewBag.CategoryList"></select>
             </div>
 
             <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="Quantity" />
             <div class="form-group mt-3">
                 <button type="submit" class="btn btn-primary">Зберегти</button>
                 <a asp-action="Index" class="btn btn-secondary">Скасувати</a>

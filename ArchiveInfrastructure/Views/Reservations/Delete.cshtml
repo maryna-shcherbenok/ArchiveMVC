@@ -1,39 +1,41 @@
 ﻿@model ArchiveDomain.Model.Reservation
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Видалення бронювання";
 }
 
-<h1>Delete</h1>
+<h1>Видалення бронювання</h1>
 
-<h3>Are you sure you want to delete this?</h3>
+<h4>Ви впевнені, що хочете видалити це бронювання?</h4>
+
 <div>
-    <h4>Reservation</h4>
-    <hr />
+    <h5>Користувач: <strong>@Model.User.Email</strong></h5>
     <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ReservationStartDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ReservationStartDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ReservationEndDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ReservationEndDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.User)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.User.Email)
+        <dt class="col-sm-4">Дата початку:</dt>
+        <dd class="col-sm-8">@Model.ReservationStartDate.ToString("yyyy-MM-dd")</dd>
+
+        <dt class="col-sm-4">Дата завершення:</dt>
+        <dd class="col-sm-8">
+            @(Model.ReservationEndDate.HasValue
+                ? Model.ReservationEndDate.Value.ToString("yyyy-MM-dd")
+                : "Не вказано")
         </dd>
     </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+
+    <h5>Зарезервовані екземпляри документів:</h5>
+    @if (Model.ReservationDocuments.Any())
+    {
+        <ul>
+            @foreach (var rd in Model.ReservationDocuments)
+            {
+                <li>Інвентарний номер: @rd.DocumentInstance.InventoryNumber</li>
+            }
+        </ul>
+    }
 </div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-primary">Видалити</button>
+    <a asp-action="Index" class="btn btn-secondary">Скасувати</a>
+</form>

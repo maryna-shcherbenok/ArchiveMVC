@@ -19,21 +19,41 @@ namespace ArchiveInfrastructure.Controllers
             _context = context;
         }
 
-        // GET: Reservations
-        public async Task<IActionResult> Index(int? userId)
+        // GET: Reservations (Список бронювань з пошуком)
+        public async Task<IActionResult> Index(string readerCardNumber, string inventoryNumber)
         {
             IQueryable<Reservation> reservations = _context.Reservations
                 .Include(r => r.User)
+                .Include(r => r.ReservationDocuments)
+                    .ThenInclude(rd => rd.DocumentInstance)
                 .AsNoTracking();
 
-            if (userId.HasValue)
+            // 🔹 Фільтр за ReaderCardNumber (Читацький квиток)
+            if (!string.IsNullOrEmpty(readerCardNumber))
             {
-                reservations = reservations.Where(r => r.UserId == userId);
-                ViewBag.UserId = userId;
-                ViewBag.UserName = _context.Users
-                    .Where(u => u.Id == userId)
-                    .Select(u => u.Email)
-                    .FirstOrDefault();
+                if (int.TryParse(readerCardNumber, out int parsedReaderCardNumber))
+                {
+                    reservations = reservations.Where(r => r.User.ReaderCardNumber == parsedReaderCardNumber);
+                    ViewBag.ReaderCardNumber = parsedReaderCardNumber;
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Неправильний формат номера читацького квитка.");
+                }
+            }
+
+            // 🔹 Фільтр за InventoryNumber (Інвентарний номер)
+            if (!string.IsNullOrEmpty(inventoryNumber))
+            {
+                if (int.TryParse(inventoryNumber, out int parsedInventoryNumber))
+                {
+                    reservations = reservations.Where(r => r.ReservationDocuments.Any(rd => rd.DocumentInstance.InventoryNumber == parsedInventoryNumber));
+                    ViewBag.InventoryNumber = parsedInventoryNumber;
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Неправильний формат інвентарного номера.");
+                }
             }
 
             return View(await reservations.ToListAsync());
@@ -47,6 +67,7 @@ namespace ArchiveInfrastructure.Controllers
             var reservation = await _context.Reservations
                 .Include(r => r.User)
                 .Include(r => r.ReservationDocuments)
+                 .ThenInclude(rd => rd.DocumentInstance)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.Id == id);
 
@@ -58,36 +79,58 @@ namespace ArchiveInfrastructure.Controllers
         // GET: Reservations/Create
         public IActionResult Create()
         {
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Email");
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "ReaderCardNumber");
+
+            // Вибираємо тільки доступні екземпляри документів
+            ViewData["DocumentInstances"] = new MultiSelectList(
+                _context.DocumentInstances.Where(di => di.Available),
+                "Id",
+                "InventoryNumber"
+            );
+
             return View();
         }
 
         // POST: Reservations/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserId,ReservationStartDate,ReservationEndDate,Id")] Reservation reservation)
+        public async Task<IActionResult> Create([Bind("UserId,ReservationStartDate,ReservationEndDate,Id")] Reservation reservation, int[] documentInstanceIds)
         {
-            if (ModelState.IsValid)
+            if (documentInstanceIds == null || !documentInstanceIds.Any())
             {
-                // Перевірка на конфлікт дат бронювання
-                var overlappingReservation = await _context.Reservations
-                    .FirstOrDefaultAsync(r => r.UserId == reservation.UserId &&
-                        ((reservation.ReservationStartDate >= r.ReservationStartDate && reservation.ReservationStartDate <= r.ReservationEndDate) ||
-                         (reservation.ReservationEndDate >= r.ReservationStartDate && reservation.ReservationEndDate <= r.ReservationEndDate)));
-
-                if (overlappingReservation != null)
-                {
-                    ModelState.AddModelError("", "Користувач вже має бронювання в цьому часовому діапазоні.");
-                    return View(reservation);
-                }
-
-                _context.Add(reservation);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError("", "Не можна створити бронювання без вибраного екземпляра документа.");
             }
 
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Email", reservation.UserId);
-            return View(reservation);
+            if (!ModelState.IsValid)
+            {
+                ViewData["UserId"] = new SelectList(_context.Users, "Id", "ReaderCardNumber", reservation.UserId);
+                ViewData["DocumentInstances"] = new MultiSelectList(
+                    _context.DocumentInstances.Where(di => di.Available),
+                    "Id",
+                    "InventoryNumber"
+                );
+                return View(reservation);  // Повертаємо користувача на ту ж сторінку з помилкою
+            }
+
+            _context.Add(reservation);
+            await _context.SaveChangesAsync();
+
+            foreach (var instanceId in documentInstanceIds)
+            {
+                var documentInstance = await _context.DocumentInstances.FindAsync(instanceId);
+                if (documentInstance != null && documentInstance.Available)
+                {
+                    documentInstance.Available = false;
+                    _context.ReservationDocuments.Add(new ReservationDocument
+                    {
+                        ReservationId = reservation.Id,
+                        DocumentInstanceId = instanceId
+                    });
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Reservations/Edit/5
@@ -95,10 +138,30 @@ namespace ArchiveInfrastructure.Controllers
         {
             if (id == null) return NotFound();
 
-            var reservation = await _context.Reservations.FindAsync(id);
+            var reservation = await _context.Reservations
+                .Include(r => r.ReservationDocuments)
+                .ThenInclude(rd => rd.DocumentInstance)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
             if (reservation == null) return NotFound();
 
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Email", reservation.UserId);
+            var reservedInstanceIds = reservation.ReservationDocuments
+                .Select(rd => rd.DocumentInstanceId)
+                .ToList();
+
+            var availableInstances = await _context.DocumentInstances
+                .Where(di => di.Available || reservedInstanceIds.Contains(di.Id))
+                .AsNoTracking()
+                .ToListAsync();
+
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "ReaderCardNumber", reservation.UserId);
+            ViewData["DocumentInstances"] = new MultiSelectList(
+                availableInstances,
+                "Id",
+                "InventoryNumber",
+                reservedInstanceIds
+            );
+
             return View(reservation);
         }
 
@@ -111,19 +174,6 @@ namespace ArchiveInfrastructure.Controllers
 
             if (ModelState.IsValid)
             {
-                // Перевірка на конфлікт дат бронювання
-                var overlappingReservation = await _context.Reservations
-                    .FirstOrDefaultAsync(r => r.UserId == reservation.UserId &&
-                        r.Id != reservation.Id &&
-                        ((reservation.ReservationStartDate >= r.ReservationStartDate && reservation.ReservationStartDate <= r.ReservationEndDate) ||
-                         (reservation.ReservationEndDate >= r.ReservationStartDate && reservation.ReservationEndDate <= r.ReservationEndDate)));
-
-                if (overlappingReservation != null)
-                {
-                    ModelState.AddModelError("", "Ці дати перетинаються з існуючим бронюванням.");
-                    return View(reservation);
-                }
-
                 try
                 {
                     _context.Update(reservation);
@@ -139,7 +189,7 @@ namespace ArchiveInfrastructure.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Email", reservation.UserId);
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "ReaderCardNumber", reservation.UserId);
             return View(reservation);
         }
 
@@ -151,6 +201,7 @@ namespace ArchiveInfrastructure.Controllers
             var reservation = await _context.Reservations
                 .Include(r => r.User)
                 .Include(r => r.ReservationDocuments)
+                 .ThenInclude(rd => rd.DocumentInstance)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.Id == id);
 
@@ -166,21 +217,24 @@ namespace ArchiveInfrastructure.Controllers
         {
             var reservation = await _context.Reservations
                 .Include(r => r.ReservationDocuments)
+                    .ThenInclude(rd => rd.DocumentInstance)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (reservation == null) return NotFound();
 
-            // Перевірка, чи бронювання має пов’язані екземпляри документів
-            if (reservation.ReservationDocuments.Any())
+            foreach (var rd in reservation.ReservationDocuments)
             {
-                ModelState.AddModelError("", "Неможливо видалити бронювання, оскільки воно містить зарезервовані документи.");
-                return View(reservation);
+                if (rd.DocumentInstance != null)
+                {
+                    rd.DocumentInstance.Available = true;
+                }
             }
 
+            _context.ReservationDocuments.RemoveRange(reservation.ReservationDocuments);
             _context.Reservations.Remove(reservation);
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
     }
 }
-

@@ -1,47 +1,68 @@
 ﻿@model IEnumerable<ArchiveDomain.Model.Reservation>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Список бронювань";
 }
 
-<h1>Index</h1>
+<h1>Список бронювань</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">Додати нове бронювання</a>
 </p>
-<table class="table">
+
+<form asp-action="Index" method="get" class="row mb-3">
+    <div class="col-md-3">
+        <label>Читацький квиток</label>
+        <input type="text" name="readerCardNumber" class="form-control" value="@Context.Request.Query["readerCardNumber"]" />
+    </div>
+    <div class="col-md-3">
+        <label>Інвентарний номер</label>
+        <input type="text" name="inventoryNumber" class="form-control" value="@Context.Request.Query["inventoryNumber"]" />
+    </div>
+    <div class="col-md-3 mt-4">
+        <button type="submit" class="btn btn-primary">Пошук</button>
+        <a asp-action="Index" class="btn btn-secondary">Скинути</a>
+    </div>
+</form>
+
+<table class="table table-bordered">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.ReservationStartDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ReservationEndDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User)
-            </th>
-            <th></th>
+            <th>Читацький квиток</th>
+            <th>Екземпляри документів</th>
+            <th>Дата початку</th>
+            <th>Дата завершення</th>
+            <th>Дії</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.ReservationStartDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ReservationEndDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.User.Email)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.User.ReaderCardNumber</td>
+                <td>
+                    @if (item.ReservationDocuments != null && item.ReservationDocuments.Any())
+                    {
+                        <ul>
+                            @foreach (var doc in item.ReservationDocuments)
+                            {
+                                <li>@doc.DocumentInstance.InventoryNumber</li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <span class="text-danger">Немає зарезервованих екземплярів</span>
+                    }
+                </td>
+                <td>@item.ReservationStartDate.ToString("yyyy-MM-dd")</td>
+                <td>@(item.ReservationEndDate.HasValue ? item.ReservationEndDate.Value.ToString("yyyy-MM-dd") : "Не вказано")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Редагувати</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Деталі</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Видалити</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

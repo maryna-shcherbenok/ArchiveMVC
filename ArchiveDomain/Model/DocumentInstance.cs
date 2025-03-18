@@ -20,7 +20,7 @@ public partial class DocumentInstance: Entity
     [Display(Name = "Документ")]
     public int DocumentId { get; set; }
 
-    public virtual Document? Document { get; set; }
+    public virtual Document? Document { get; set; } = null!;
 
     public virtual ICollection<ReservationDocument> ReservationDocuments { get; set; } = new List<ReservationDocument>();
 }
