@@ -127,12 +127,7 @@ public partial class DbarchiveContext : DbContext
         modelBuilder.Entity<Reservation>(entity =>
         {
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.UserId).HasColumnName("UserID");
-
-            entity.HasOne(d => d.User).WithMany(p => p.Reservations)
-                .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Reservations_Users");
+           
         });
 
         modelBuilder.Entity<ReservationDocument>(entity =>
@@ -154,18 +149,7 @@ public partial class DbarchiveContext : DbContext
                 .HasConstraintName("FK_ReservationDocument_Reservations");
         });
 
-        modelBuilder.Entity<User>(entity =>
-        {
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Email)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.FirstName).HasMaxLength(50);
-            entity.Property(e => e.LastName).HasMaxLength(50);
-            entity.Property(e => e.PhoneNumber)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-        });
+        //тут був User
 
         OnModelCreatingPartial(modelBuilder);
     }

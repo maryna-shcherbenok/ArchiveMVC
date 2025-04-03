@@ -1,0 +1,51 @@
+﻿@model ArchiveInfrastructure.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="container mx-auto">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-6">
+
+            <h1 class="mt-5 mb-3 h3">Register</h1>
+
+            <form asp-action="Register" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" asp-for="Email" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-control" asp-for="Username" />
+                </div>
+                    
+                <div class="mb-3">
+                    <label class="form-label">PhoneNumber</label>
+                    <input type="text" class="form-control" asp-for="PhoneNumber" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">CardNumber</label>
+                    <input type="text" class="form-control" asp-for="ReaderCardNumber" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Position</label>
+                    <input type="text" class="form-control" asp-for="Position" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-control" asp-for="Password" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">PasswordConfirm</label>
+                    <input type="password" class="form-control" asp-for="PasswordConfirm" />
+                </div>
+
+                <div class="mb-3">
+                    <button type="submit" class="btn bg-danger text-bg-success text-light">Register</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

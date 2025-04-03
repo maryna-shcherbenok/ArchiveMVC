@@ -4,91 +4,93 @@
     ViewData["Title"] = "Список документів";
 }
 
-<h1>Список документів</h1>
+<h1 class ="mb-4">Список документів</h1>
 
 @if (ViewBag.FilterType != null)
 {
     <h3>@ViewBag.FilterType: @ViewBag.FilterValue</h3>
 }
 
-<h4>Пошук та фільтрація документів</h4>
+<div class="row">
+    <!-- Пошук та фільтрація -->
+    <div class="col-md-6">
+        <h4>Пошук та фільтрація документів</h4>
 
-<form asp-action="Index" method="get">
-    <div class="row mb-3">
-        <div class="col-md-12">
-            <label>Назва</label>
-            <input type="text" name="title" class="form-control" value="@Context.Request.Query["title"]" />
-        </div>
+        <form asp-action="Index" method="get">
+            <div class="row mb-2">
+                <div class="col-md-6">
+                    <label>Назва</label>
+                    <input type="text" name="title" class="form-control form-control-sm" value="@Context.Request.Query["title"]" />
+                </div>
+                <div class="col-md-6">
+                    <label>Мова</label>
+                    <input type="text" name="language" class="form-control form-control-sm" value="@Context.Request.Query["language"]" />
+                </div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-md-6">
+                    <label>Тип документа</label>
+                    <select name="typeId" class="form-control form-control-sm">
+                        <option value="">Всі</option>
+                        @if (ViewBag.DocumentTypes != null)
+                        {
+                            @foreach (var type in ViewBag.DocumentTypes)
+                            {
+                                <option value="@type.Id" selected="@(type.Id.ToString() == Context.Request.Query["typeId"] ? "selected" : null)">@type.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label>Автор</label>
+                    <select name="authorId" class="form-control form-control-sm">
+                        <option value="">Всі</option>
+                        @if (ViewBag.Authors != null)
+                        {
+                            @foreach (var author in ViewBag.Authors)
+                            {
+                                <option value="@author.Id" selected="@(author.Id.ToString() == Context.Request.Query["authorId"] ? "selected" : null)">@author.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-md-6">
+                    <label>Категорія</label>
+                    <select name="categoryId" class="form-control form-control-sm">
+                        <option value="">Всі</option>
+                        @if (ViewBag.Categories != null)
+                        {
+                            @foreach (var category in ViewBag.Categories)
+                            {
+                                <option value="@category.Id" selected="@(category.Id.ToString() == Context.Request.Query["categoryId"] ? "selected" : null)">@category.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary w-auto">Пошук</button>
+                    <a asp-action="Index" class="btn btn-secondary w-auto">Скинути</a>
+                </div>
+            </div>
+        </form>
     </div>
 
-    <div class="row mb-3">
-        <div class="col-md-12">
-            <label>Мова</label>
-            <input type="text" name="language" class="form-control" value="@Context.Request.Query["language"]" />
-        </div>
+    <!-- Діаграма -->
+    <div class="col-md-6">
+        <h4>Документи за мовами</h4>
+        <div id="documentsByLanguageChart"></div>
     </div>
+</div>
 
-    <div class="row mb-3">
-        <div class="col-md-12">
-            <label>Тип документа</label>
-            <select name="typeId" class="form-control">
-                <option value="">Всі</option>
-                @if (ViewBag.DocumentTypes != null)
-                {
-                    @foreach (var type in ViewBag.DocumentTypes)
-                    {
-                        <option value="@type.Id" selected="@(type.Id.ToString() == Context.Request.Query["typeId"] ? "selected" : null)">
-                            @type.Name
-                        </option>
-                    }
-                }
-            </select>
-        </div>
-    </div>
-
-    <div class="row mb-3">
-        <div class="col-md-12">
-            <label>Автор</label>
-            <select name="authorId" class="form-control">
-                <option value="">Всі</option>
-                @if (ViewBag.Authors != null)
-                {
-                    @foreach (var author in ViewBag.Authors)
-                    {
-                        <option value="@author.Id" selected="@(author.Id.ToString() == Context.Request.Query["authorId"] ? "selected" : null)">
-                            @author.Name
-                        </option>
-                    }
-                }
-            </select>
-        </div>
-    </div>
-
-    <div class="row mb-3">
-        <div class="col-md-12">
-            <label>Категорія</label>
-            <select name="categoryId" class="form-control">
-                <option value="">Всі</option>
-                @if (ViewBag.Categories != null)
-                {
-                    @foreach (var category in ViewBag.Categories)
-                    {
-                        <option value="@category.Id" selected="@(category.Id.ToString() == Context.Request.Query["categoryId"] ? "selected" : null)">
-                            @category.Name
-                        </option>
-                    }
-                }
-            </select>
-        </div>
-    </div>
-
-    <div class="row mb-3">
-        <div class="col-md-12">
-            <button type="submit" class="btn btn-primary">Пошук</button>
-            <a asp-action="Index" class="btn btn-secondary">Скинути</a>
-        </div>
-    </div>
-</form>
+<a class="btn btn-primary mb-3" asp-controller="Documents" asp-action="Import">Завантажити з файлу</a>
+<a class="btn btn-primary mb-3" asp-controller="Documents" asp-action="Export">Експортувати у файл</a>
 
 <p>
     <a asp-action="Create">Додати новий документ</a>
@@ -124,3 +126,51 @@
     </tbody>
 </table>
 
+@section Scripts
+{
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', { 'packages': ['corechart'] });
+        google.charts.setOnLoadCallback(drawDocumentLanguagesChart);
+
+        function drawDocumentLanguagesChart() {
+            fetch('/api/charts/countByLanguage')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.length) {
+                        console.error("Помилка: API повернуло порожні дані.");
+                        return;
+                    }
+
+                    const dataTable = new google.visualization.DataTable();
+                    dataTable.addColumn('string', 'Мова');
+                    dataTable.addColumn('number', 'Кількість');
+
+                    data.forEach(item => {
+                        dataTable.addRow([item.language, item.count]);
+                    });
+
+                    const options = {
+                        title: 'Документи за мовами',
+                        width: '100%',
+                        height: 300,
+                        chartArea: { width: '70%' },
+                        hAxis: { title: 'Мова' },
+                        vAxis: { title: 'Кількість' },
+                        legend: { position: 'none' },
+                        bar: { groupWidth: '70%' },
+                        colors: ['#993300'],
+                    };
+
+                    const chart = new google.visualization.ColumnChart(document.getElementById('documentsByLanguageChart'));
+                    chart.draw(dataTable, options);
+                })
+                .catch(error => console.error('Помилка запиту:', error));
+        }
+    </script>
+}

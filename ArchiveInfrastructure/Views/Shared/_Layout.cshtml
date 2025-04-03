@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -38,13 +40,22 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="DocumentTypes" asp-action="Index">Типи</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Reservations" asp-action="Index">Бронювання</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="Index">Користувачі</a>
-                        </li>
                     </ul>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <div class="me-3">
+                            @User?.Identity?.Name
+                        </div>
+                        <form asp-controller="Account" asp-action="Logout" method="post">
+                            <button type="submit" class="btn btn-link">Вийти</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Login" class="btn bg-light text-dark me-3">Увійти</a>
+                        <a asp-controller="Account" asp-action="Register" class="btn bg-light text-dark me-3">Реєстрація</a>
+
+                    }
                 </div>
             </div>
         </nav>

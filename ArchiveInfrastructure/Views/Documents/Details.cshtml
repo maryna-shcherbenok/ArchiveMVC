@@ -19,9 +19,6 @@
         <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Language)</dt>
         <dd class="col-sm-10">@Html.DisplayFor(model => model.Language)</dd>
 
-        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Info)</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.Info)</dd>
-
         <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Quantity)</dt>
         <dd class="col-sm-10">@Html.DisplayFor(model => model.Quantity)</dd>
 
@@ -33,27 +30,50 @@
     </dl>
 </div>
 
+<h3>Опис</h3>
+@if (!string.IsNullOrWhiteSpace(Model.Info))
+{
+    <p>@Model.Info</p>
+}
+else
+{
+    <p><em>Опис відсутній.</em></p>
+}
+
 <h3>Автори</h3>
 @if (Model.AuthorDocuments != null && Model.AuthorDocuments.Any())
 {
     <ul>
-        @foreach (var authorDoc in Model.AuthorDocuments)
+        @foreach (var author in Model.AuthorDocuments
+       .Select(ad => ad.Author)
+       .GroupBy(a => a.Id)
+       .Select(g => g.First()))
         {
-            <li>@authorDoc.Author.Name</li>
+            <li>@author.Name</li>
         }
     </ul>
 }
-else { <p>Автори не вказані.</p> }
+else
+{
+    <p>Автори не вказані.</p>
+}
 
 <h3>Категорії</h3>
 @if (Model.CategoryDocuments != null && Model.CategoryDocuments.Any())
 {
     <ul>
-        @foreach (var categoryDoc in Model.CategoryDocuments)
+        @foreach (var category in Model.CategoryDocuments
+       .Select(cd => cd.Category)
+       .GroupBy(c => c.Id)
+       .Select(g => g.First()))
         {
-            <li>@categoryDoc.Category.Name</li>
+            <li>@category.Name</li>
         }
     </ul>
+}
+else
+{
+    <p>Категорії не вказані.</p>
 }
 
 <h3>Екземпляри документа</h3>
@@ -78,6 +98,10 @@ else { <p>Автори не вказані.</p> }
             }
         </tbody>
     </table>
+}
+else
+{
+    <p><em>Екземпляри відсутні.</em></p>
 }
 
 <div class="mt-4">

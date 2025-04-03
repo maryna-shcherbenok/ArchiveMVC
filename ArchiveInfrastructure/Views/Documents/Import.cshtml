@@ -1,0 +1,33 @@
+﻿@{
+    ViewData["Title"] = "Імпорт документів";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-3">Імпорт документів та екземплярів</h2>
+
+    @* Повідомлення про помилки *@
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Помилка:</strong> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрити"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Оберіть Excel-файл для завантаження</h5>
+            @using (Html.BeginForm("Import", "Documents", FormMethod.Post, new { enctype = "multipart/form-data", id = "frm-excel" }))
+            {
+                <div class="mb-3">
+                    <label for="fileExcel" class="form-label">Завантажте Excel-файл:</label>
+                    <input type="file" name="fileExcel" id="fileExcel" class="form-control" required />
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Завантажити</button>
+                    <a asp-action="Index" class="btn btn-secondary">Назад до списку</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -4,40 +4,58 @@
     ViewData["Title"] = "Список екземплярів документів";
 }
 
-<h1>Список екземплярів документів</h1>
+<h1 class ="mb-4">Список екземплярів документів</h1>
 
-<form asp-action="Index" method="get" class="row mb-3">
-    <div class="col-md-3">
-        <label>Інвентарний номер</label>
-        <input type="text" name="inventoryNumber" class="form-control" value="@Context.Request.Query["inventoryNumber"]" />
+<div class="row">
+    <!-- Форма пошуку та фільтрації -->
+    <div class="col-md-6">
+        <h4>Пошук та фільтрація</h4>
+        <form asp-action="Index" method="get">
+            <div class="row mb-2">
+                <div class="col-md-6">
+                    <label>Інвентарний номер</label>
+                    <input type="text" name="inventoryNumber" class="form-control form-control-sm" value="@Context.Request.Query["inventoryNumber"]" />
+                </div>
+                <div class="col-md-6">
+                    <label>Стан</label>
+                    <input type="text" name="state" class="form-control form-control-sm" value="@Context.Request.Query["state"]" />
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-md-6">
+                    <label>Доступність</label>
+                    <select name="available" class="form-control form-control-sm">
+                        <option value="">Всі</option>
+                        <option value="true" selected="@(Context.Request.Query["available"] == "true")">Доступні</option>
+                        <option value="false" selected="@(Context.Request.Query["available"] == "false")">Недоступні</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label>Документ</label>
+                    <select name="documentId" class="form-control form-control-sm">
+                        <option value="">Всі</option>
+                        @foreach (var doc in ViewBag.DocumentList)
+                        {
+                            <option value="@doc.Value" selected="@(doc.Value == Context.Request.Query["documentId"])">@doc.Text</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary w-auto">Знайти</button>
+                    <a asp-action="Index" class="btn btn-secondary w-auto">Скинути</a>
+                </div>
+            </div>
+        </form>
     </div>
-    <div class="col-md-3">
-        <label>Стан</label>
-        <input type="text" name="state" class="form-control" value="@Context.Request.Query["state"]" />
+
+    <!-- Діаграма "Екземпляри за станом" -->
+    <div class="col-md-6">
+        <h4>Екземпляри за станом</h4>
+        <div id="documentInstancesByStateChart"></div>
     </div>
-    <div class="col-md-3">
-        <label>Доступність</label>
-        <select name="available" class="form-control">
-            <option value="">Всі</option>
-            <option value="true" selected="@(Context.Request.Query["available"] == "true")">Доступні</option>
-            <option value="false" selected="@(Context.Request.Query["available"] == "false")">Недоступні</option>
-        </select>
-    </div>
-    <div class="col-md-3">
-        <label>Документ</label>
-        <select name="documentId" class="form-control">
-            <option value="">Всі</option>
-            @foreach (var doc in ViewBag.DocumentList)
-            {
-                <option value="@doc.Value" selected="@(doc.Value == Context.Request.Query["documentId"])">@doc.Text</option>
-            }
-        </select>
-    </div>
-    <div class="col-md-3 mt-4">
-        <button type="submit" class="btn btn-primary">Знайти</button>
-        <a asp-action="Index" class="btn btn-secondary">Скинути</a>
-    </div>
-</form>
+</div>
 
 <p>
     <a asp-action="Create">Додати новий екземпляр</a>
@@ -79,3 +97,52 @@
         }
     </tbody>
 </table>
+
+@section Scripts
+{
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', { 'packages': ['corechart'] });
+        google.charts.setOnLoadCallback(drawDocumentInstancesChart);
+
+        function drawDocumentInstancesChart() {
+            fetch('/api/charts/countByState')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.length) {
+                        console.error("Помилка: API повернуло порожні дані.");
+                        return;
+                    }
+
+                    const dataTable = new google.visualization.DataTable();
+                    dataTable.addColumn('string', 'Стан');
+                    dataTable.addColumn('number', 'Кількість');
+
+                    data.forEach(item => {
+                        dataTable.addRow([item.state, item.count]);
+                    });
+
+                    const options = {
+                        title: 'Екземпляри за станом',
+                        width: '100%',
+                        height: 300,
+                        chartArea: { width: '70%' },
+                        hAxis: { title: 'Стан' },
+                        vAxis: { title: 'Кількість' },
+                        legend: { position: 'none' },
+                        bar: { groupWidth: '70%' },
+                        colors: ['#993300'],
+                    };
+
+                    const chart = new google.visualization.ColumnChart(document.getElementById('documentInstancesByStateChart'));
+                    chart.draw(dataTable, options);
+                })
+                .catch(error => console.error('Помилка запиту:', error));
+        }
+    </script>
+}

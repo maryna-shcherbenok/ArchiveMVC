@@ -7,19 +7,22 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ArchiveDomain.Model;
 using ArchiveInfrastructure;
+using ArchiveInfrastructure.Services;
+using ArchiveInfrastructure.Factories;
 
 namespace ArchiveInfrastructure.Controllers;
 
 public class DocumentsController : Controller
 {
     private readonly DbarchiveContext _context;
+    private readonly IDataPortServiceFactory<Document> _documentDataPortServiceFactory;
 
-    public DocumentsController(DbarchiveContext context)
+    public DocumentsController(DbarchiveContext context, IDataPortServiceFactory<Document> documentDataPortServiceFactory)
     {
         _context = context;
+        _documentDataPortServiceFactory = documentDataPortServiceFactory;
     }
 
-    // GET: Documents + теж пошук і фільтрація
     public async Task<IActionResult> Index(
         string title, int? authorId, int? categoryId, int? typeId,
         string language, bool? onlyAvailable)
@@ -31,29 +34,32 @@ public class DocumentsController : Controller
             .Include(d => d.CategoryDocuments).ThenInclude(cd => cd.Category)
             .AsNoTracking();
 
-        if (!string.IsNullOrEmpty(title)) { documents = documents.Where(d => d.Title.Contains(title)); }
+        if (!string.IsNullOrEmpty(title))
+            documents = documents.Where(d => d.Title.Contains(title));
 
-        if (authorId.HasValue) 
+        if (authorId.HasValue)
         {
             documents = documents.Where(d => d.AuthorDocuments.Any(ad => ad.AuthorId == authorId));
             ViewBag.AuthorId = authorId;
         }
 
-        if (categoryId.HasValue) 
+        if (categoryId.HasValue)
         {
             documents = documents.Where(d => d.CategoryDocuments.Any(cd => cd.CategoryId == categoryId));
             ViewBag.CategoryId = categoryId;
         }
 
-        if (typeId.HasValue) 
+        if (typeId.HasValue)
         {
             documents = documents.Where(d => d.TypeId == typeId);
             ViewBag.TypeId = typeId;
         }
 
-        if (!string.IsNullOrEmpty(language)) { documents = documents.Where(d => d.Language.Contains(language)); }
+        if (!string.IsNullOrEmpty(language))
+            documents = documents.Where(d => d.Language.Contains(language));
 
-        if (onlyAvailable.HasValue && onlyAvailable.Value) { documents = documents.Where(d => d.DocumentInstances.Any(di => di.Available)); }
+        if (onlyAvailable.HasValue && onlyAvailable.Value)
+            documents = documents.Where(d => d.DocumentInstances.Any(di => di.Available));
 
         ViewBag.DocumentTypes = await _context.DocumentTypes.ToListAsync();
         ViewBag.Authors = await _context.Authors.ToListAsync();
@@ -62,7 +68,6 @@ public class DocumentsController : Controller
         return View(await documents.ToListAsync());
     }
 
-    // GET: Documents/Details/5
     public async Task<IActionResult> Details(int? id)
     {
         if (id == null) return NotFound();
@@ -80,7 +85,6 @@ public class DocumentsController : Controller
         return View(document);
     }
 
-    // GET: Documents/Create
     public IActionResult Create(int? authorId, int? categoryId, int? typeId)
     {
         ViewBag.TypeList = new SelectList(_context.DocumentTypes, "Id", "Name", typeId);
@@ -94,7 +98,6 @@ public class DocumentsController : Controller
         return View();
     }
 
-    // POST: Documents/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("Title,PublicationDate,Language,Info,TypeId,Id")] Document document, int[] authorIds, int[] categoryIds)
@@ -122,17 +125,33 @@ public class DocumentsController : Controller
                 }
             }
 
-            // Як тільки додасться до системи новий документ, йому автоматично буде присвоєно інверт. номер, стан і т.д.
+            var lastInstance = await _context.DocumentInstances
+                .Where(di => di.InventoryNumber >= 11120001)
+                .OrderByDescending(di => di.InventoryNumber)
+                .FirstOrDefaultAsync();
+
+            int nextNumber = 11120001;
+
+            if (lastInstance != null)
+            {
+                int lastDigits = int.Parse(lastInstance.InventoryNumber.ToString().Substring(5));
+                nextNumber = 11120000 + (lastDigits + 1);
+            }
+
             var firstInstance = new DocumentInstance
             {
                 DocumentId = document.Id,
-                InventoryNumber = 1,
+                InventoryNumber = nextNumber,
                 State = "Новий",
                 Available = true
             };
-            _context.DocumentInstances.Add(firstInstance);
 
+            _context.DocumentInstances.Add(firstInstance);
             await _context.SaveChangesAsync();
+
+            // Оновлюємо кількість копій
+            await UpdateDocumentQuantityAsync(document.Id);
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -143,7 +162,6 @@ public class DocumentsController : Controller
         return View(document);
     }
 
-    // GET: Documents/Edit/5
     public async Task<IActionResult> Edit(int? id)
     {
         if (id == null) return NotFound();
@@ -162,7 +180,6 @@ public class DocumentsController : Controller
         return View(document);
     }
 
-    // POST: Documents/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, [Bind("Id,Title,PublicationDate,Language,Info,Quantity,TypeId")] Document document, int[] authorIds, int[] categoryIds)
@@ -193,7 +210,6 @@ public class DocumentsController : Controller
         return View(document);
     }
 
-    // GET: Documents/Delete/5
     public async Task<IActionResult> Delete(int? id)
     {
         if (id == null) return NotFound();
@@ -208,21 +224,19 @@ public class DocumentsController : Controller
         return View(document);
     }
 
-    // POST: Documents/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
         var document = await _context.Documents
             .Include(d => d.DocumentInstances)
-                .ThenInclude(di => di.ReservationDocuments) // Завантажуємо бронювання екземплярів
+                .ThenInclude(di => di.ReservationDocuments)
             .Include(d => d.AuthorDocuments)
             .Include(d => d.CategoryDocuments)
             .FirstOrDefaultAsync(d => d.Id == id);
 
         if (document == null) return NotFound();
 
-        // 🔹 1. Знаходимо всі бронювання, пов'язані з екземплярами документа
         var reservationIds = document.DocumentInstances
             .SelectMany(di => di.ReservationDocuments)
             .Select(rd => rd.ReservationId)
@@ -236,25 +250,81 @@ public class DocumentsController : Controller
                 .Include(r => r.ReservationDocuments)
                 .ToListAsync();
 
-            // 🔹 Видаляємо всі бронювання та їх зв’язки
             _context.ReservationDocuments.RemoveRange(reservationsToRemove.SelectMany(r => r.ReservationDocuments));
             _context.Reservations.RemoveRange(reservationsToRemove);
         }
 
-        // 🔹 2. Видаляємо всі екземпляри документа
         if (document.DocumentInstances.Any())
         {
             _context.DocumentInstances.RemoveRange(document.DocumentInstances);
         }
 
-        // 🔹 3. Видаляємо зв'язки з авторами та категоріями
         _context.AuthorDocuments.RemoveRange(document.AuthorDocuments);
         _context.CategoryDocuments.RemoveRange(document.CategoryDocuments);
-
-        // 🔹 4. Видаляємо сам документ
         _context.Documents.Remove(document);
 
         await _context.SaveChangesAsync();
+
         return RedirectToAction(nameof(Index));
+    }
+
+    [HttpGet]
+    public IActionResult Import() => View();
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Import(IFormFile fileExcel, CancellationToken cancellationToken = default)
+    {
+        if (fileExcel == null || fileExcel.Length == 0)
+        {
+            ModelState.AddModelError("", "Будь ласка, оберіть файл для імпорту.");
+            return View();
+        }
+
+        var importService = _documentDataPortServiceFactory.GetImportService(fileExcel.ContentType);
+
+        try
+        {
+            using var stream = fileExcel.OpenReadStream();
+            await importService.ImportFromStreamAsync(stream, cancellationToken);
+            TempData["SuccessMessage"] = "Імпорт виконано успішно.";
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = ex.Message;
+            return RedirectToAction(nameof(Import));
+        }
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Export(
+        [FromQuery] string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        CancellationToken cancellationToken = default)
+    {
+        var exportService = _documentDataPortServiceFactory.GetExportService(contentType);
+
+        var memoryStream = new MemoryStream();
+        await exportService.WriteToAsync(memoryStream, cancellationToken);
+        await memoryStream.FlushAsync(cancellationToken);
+        memoryStream.Position = 0;
+
+        return new FileStreamResult(memoryStream, contentType)
+        {
+            FileDownloadName = $"export_{DateTime.UtcNow:yyyy-MM-dd}.xlsx"
+        };
+    }
+
+    // Допоміжний метод для оновлення кількості копій
+    private async Task UpdateDocumentQuantityAsync(int documentId)
+    {
+        var document = await _context.Documents.FindAsync(documentId);
+        if (document != null)
+        {
+            int count = await _context.DocumentInstances.CountAsync(di => di.DocumentId == documentId);
+            document.Quantity = count;
+            await _context.SaveChangesAsync();
+        }
     }
 }

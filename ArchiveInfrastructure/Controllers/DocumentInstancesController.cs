@@ -19,20 +19,24 @@ public class DocumentInstancesController : Controller
         _context = context;
     }
 
-    // GET: DocumentInstances + додала пошуком та фільтрацію по деяким атрибутам
+    // GET: DocumentInstances
     public async Task<IActionResult> Index(string inventoryNumber, string state, bool? available, int? documentId)
     {
         IQueryable<DocumentInstance> instances = _context.DocumentInstances
             .Include(d => d.Document)
             .AsNoTracking();
 
-        if (!string.IsNullOrEmpty(inventoryNumber)) { instances = instances.Where(di => di.InventoryNumber.ToString().Contains(inventoryNumber)); }
+        if (!string.IsNullOrEmpty(inventoryNumber))
+            instances = instances.Where(di => di.InventoryNumber.ToString().Contains(inventoryNumber));
 
-        if (!string.IsNullOrEmpty(state)) { instances = instances.Where(di => di.State.Contains(state)); }
+        if (!string.IsNullOrEmpty(state))
+            instances = instances.Where(di => di.State.Contains(state));
 
-        if (available.HasValue) { instances = instances.Where(di => di.Available == available.Value); }
+        if (available.HasValue)
+            instances = instances.Where(di => di.Available == available.Value);
 
-        if (documentId.HasValue) { instances = instances.Where(di => di.DocumentId == documentId); }
+        if (documentId.HasValue)
+            instances = instances.Where(di => di.DocumentId == documentId);
 
         ViewBag.DocumentList = new SelectList(await _context.Documents
             .Select(d => new { d.Id, d.Title })
@@ -57,51 +61,55 @@ public class DocumentInstancesController : Controller
     }
 
     // GET: DocumentInstances/Create
-    public IActionResult Create(int? documentId)
+    public IActionResult Create()
     {
-        var documents = _context.Documents.ToList();
-        //if (!documents.Any()){ModelState.AddModelError("", "Немає доступних документів для створення екземпляра.");}
-
-        if (documentId.HasValue)
-        {
-            ViewData["DocumentId"] = new SelectList(documents.Where(d => d.Id == documentId), "Id", "Title", documentId);
-        }
-        else
-        {
-            ViewData["DocumentId"] = new SelectList(documents, "Id", "Title");
-        }
-
+        ViewData["DocumentId"] = new SelectList(_context.Documents, "Id", "Title");
         return View();
     }
 
     // POST: DocumentInstances/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("InventoryNumber,State,Available,DocumentId,Id")] DocumentInstance documentInstance)
+    public async Task<IActionResult> Create([Bind("State,Available,DocumentId")] DocumentInstance documentInstance)
     {
-        if (_context.DocumentInstances.Any(di => di.InventoryNumber == documentInstance.InventoryNumber))
+        if (ModelState.IsValid)
         {
-            ModelState.AddModelError("InventoryNumber", "Екземпляр документа з таким інвентарним номером вже існує.");
-        }
+            const int inventoryPrefix = 11120000;
+            int nextNumber;
 
-        if (!ModelState.IsValid)
-        {
-            ViewData["DocumentId"] = new SelectList(_context.Documents, "Id", "Title", documentInstance.DocumentId);
-            return View(documentInstance);
-        }
+            var usedNumbers = await _context.DocumentInstances
+                .Select(di => di.InventoryNumber)
+                .Where(n => n >= 11120001)
+                .ToListAsync();
 
-        _context.DocumentInstances.Add(documentInstance);
-        await _context.SaveChangesAsync();
+            if (usedNumbers.Count == 0)
+            {
+                nextNumber = inventoryPrefix + 1;
+            }
+            else
+            {
+                var allPossibleNumbers = Enumerable.Range(1, usedNumbers.Max() - inventoryPrefix)
+                    .Select(n => inventoryPrefix + n)
+                    .Except(usedNumbers)
+                    .OrderBy(n => n)
+                    .ToList();
 
-        // Збільшую Quantity у документа
-        var document = await _context.Documents.FindAsync(documentInstance.DocumentId);
-        if (document != null)
-        {
-            document.Quantity += 1;
+                nextNumber = allPossibleNumbers.Any() ? allPossibleNumbers.First() : usedNumbers.Max() + 1;
+            }
+
+            documentInstance.InventoryNumber = nextNumber;
+
+            _context.DocumentInstances.Add(documentInstance);
             await _context.SaveChangesAsync();
+
+            // 🔄 Оновлюємо кількість
+            await UpdateDocumentQuantityAsync(documentInstance.DocumentId);
+
+            return RedirectToAction(nameof(Index));
         }
 
-        return RedirectToAction(nameof(Index));
+        ViewData["DocumentId"] = new SelectList(_context.Documents, "Id", "Title", documentInstance.DocumentId);
+        return View(documentInstance);
     }
 
     // GET: DocumentInstances/Edit/5
@@ -121,24 +129,17 @@ public class DocumentInstancesController : Controller
     // POST: DocumentInstances/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,InventoryNumber,State,Available,DocumentId")] DocumentInstance documentInstance)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,State,Available,DocumentId")] DocumentInstance documentInstance)
     {
         if (id != documentInstance.Id) return NotFound();
 
-        // Перевірка на унікальність InventoryNumber
-        bool isDuplicate = await _context.DocumentInstances
-            .AnyAsync(di => di.InventoryNumber == documentInstance.InventoryNumber && di.Id != documentInstance.Id);
+        var existingInstance = await _context.DocumentInstances
+            .AsNoTracking()
+            .FirstOrDefaultAsync(di => di.Id == id);
 
-        if (isDuplicate)
-        {
-            ModelState.AddModelError("InventoryNumber", "Інвентарний номер вже використовується.");
-        }
+        if (existingInstance == null) return NotFound();
 
-        if (!ModelState.IsValid)
-        {
-            ViewData["DocumentId"] = new SelectList(_context.Documents, "Id", "Title", documentInstance.DocumentId);
-            return View(documentInstance);
-        }
+        documentInstance.InventoryNumber = existingInstance.InventoryNumber;
 
         try
         {
@@ -185,7 +186,6 @@ public class DocumentInstancesController : Controller
 
         int documentId = documentInstance.DocumentId;
 
-        // 🔹 Видаляємо всі пов’язані бронювання
         var reservationsToDelete = documentInstance.ReservationDocuments
             .Select(rd => rd.Reservation)
             .Distinct()
@@ -197,11 +197,9 @@ public class DocumentInstancesController : Controller
             _context.Reservations.Remove(reservation);
         }
 
-        // 🔹 Видаляємо сам екземпляр документа
         _context.DocumentInstances.Remove(documentInstance);
         await _context.SaveChangesAsync();
 
-        // 🔹 Перевіряємо, чи залишилися інші екземпляри цього документа
         var remainingInstances = await _context.DocumentInstances
             .Where(di => di.DocumentId == documentId)
             .CountAsync();
@@ -223,16 +221,23 @@ public class DocumentInstancesController : Controller
         }
         else
         {
-            // 🔹 Якщо є ще екземпляри, зменшуємо Quantity
-            var document = await _context.Documents.FindAsync(documentId);
-            if (document != null && document.Quantity > 1)
-            {
-                document.Quantity -= 1;
-                await _context.SaveChangesAsync();
-            }
+            // 🔄 Оновлюємо кількість, якщо документ залишився
+            await UpdateDocumentQuantityAsync(documentId);
         }
 
         return RedirectToAction(nameof(Index));
     }
 
+    // 🔧 Метод для оновлення кількості екземплярів
+    private async Task UpdateDocumentQuantityAsync(int documentId)
+    {
+        var document = await _context.Documents.FindAsync(documentId);
+        if (document != null)
+        {
+            int count = await _context.DocumentInstances
+                .CountAsync(di => di.DocumentId == documentId);
+            document.Quantity = count;
+            await _context.SaveChangesAsync();
+        }
+    }
 }

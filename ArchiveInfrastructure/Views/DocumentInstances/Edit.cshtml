@@ -15,12 +15,6 @@
             <input type="hidden" asp-for="DocumentId" />
 
             <div class="form-group">
-                <label asp-for="InventoryNumber" class="control-label">Інвентарний номер</label>
-                <input asp-for="InventoryNumber" class="form-control" placeholder="Введіть унікальний інвентарний номер" />
-                <span asp-validation-for="InventoryNumber" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
                 <label asp-for="State" class="control-label">Стан</label>
                 <input asp-for="State" class="form-control" placeholder="Стан документа (Напр.: Новий, Втрата, Пошкоджений)" />
                 <span asp-validation-for="State" class="text-danger"></span>

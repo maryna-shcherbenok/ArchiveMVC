@@ -4,7 +4,6 @@ namespace ArchiveDomain.Model;
 
 public partial class DocumentInstance: Entity
 {
-    [Required(ErrorMessage = "Поле не повинно бути порожнім!")]
     [Display(Name = "Інвентарний номер")]
     public int InventoryNumber { get; set; }
 
