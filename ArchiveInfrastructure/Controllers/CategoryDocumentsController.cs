@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ArchiveDomain.Model;
 using ArchiveInfrastructure;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ArchiveInfrastructure.Controllers
 {
+    [Authorize(Roles = "admin")]
     public class CategoryDocumentsController : Controller
     {
         private readonly DbarchiveContext _context;

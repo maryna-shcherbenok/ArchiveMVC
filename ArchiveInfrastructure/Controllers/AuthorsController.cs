@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ArchiveDomain.Model;
 using ArchiveInfrastructure;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ArchiveInfrastructure.Controllers;
 
+[Authorize(Roles = "admin")]
 public class AuthorsController : Controller
 {
     private readonly DbarchiveContext _context;

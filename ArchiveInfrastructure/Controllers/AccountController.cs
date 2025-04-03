@@ -44,6 +44,12 @@ namespace ArchiveInfrastructure.Controllers
 
             if (result.Succeeded)
             {
+                // Призначаємо роль "user"
+                await _userManager.AddToRoleAsync(user, "user");
+
+                // Для того, щоб одразу логінити
+                // await _signInManager.SignInAsync(user, isPersistent: false);
+
                 return RedirectToAction("Login"); // Redirect to Login page
             }
 

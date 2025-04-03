@@ -9,9 +9,11 @@ using ArchiveDomain.Model;
 using ArchiveInfrastructure;
 using ArchiveInfrastructure.Services;
 using ArchiveInfrastructure.Factories;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ArchiveInfrastructure.Controllers;
 
+[Authorize]
 public class DocumentsController : Controller
 {
     private readonly DbarchiveContext _context;

@@ -4,7 +4,7 @@
     ViewData["Title"] = "Список документів";
 }
 
-<h1 class ="mb-4">Список документів</h1>
+<h1 class="mb-4">Список документів</h1>
 
 @if (ViewBag.FilterType != null)
 {
@@ -12,7 +12,7 @@
 }
 
 <div class="row">
-    <!-- Пошук та фільтрація -->
+    <!-- 🔍 Пошук та фільтрація — доступно всім -->
     <div class="col-md-6">
         <h4>Пошук та фільтрація документів</h4>
 
@@ -50,7 +50,9 @@
                         {
                             @foreach (var author in ViewBag.Authors)
                             {
-                                <option value="@author.Id" selected="@(author.Id.ToString() == Context.Request.Query["authorId"] ? "selected" : null)">@author.Name</option>
+                                <option value="@author.Id" selected="@(author.Id.ToString() == Context.Request.Query["authorId"] ? "selected" : null)">
+                                    @author.Name
+                                </option>
                             }
                         }
                     </select>
@@ -66,7 +68,9 @@
                         {
                             @foreach (var category in ViewBag.Categories)
                             {
-                                <option value="@category.Id" selected="@(category.Id.ToString() == Context.Request.Query["categoryId"] ? "selected" : null)">@category.Name</option>
+                                <option value="@category.Id" selected="@(category.Id.ToString() == Context.Request.Query["categoryId"] ? "selected" : null)">
+                                    @category.Name
+                                </option>
                             }
                         }
                     </select>
@@ -82,19 +86,26 @@
         </form>
     </div>
 
-    <!-- Діаграма -->
-    <div class="col-md-6">
-        <h4>Документи за мовами</h4>
-        <div id="documentsByLanguageChart"></div>
-    </div>
+    <!-- 📊 Діаграма: тільки для admin -->
+    @if (User.IsInRole("admin"))
+    {
+        <div class="col-md-6">
+            <h4>Документи за мовами</h4>
+            <div id="documentsByLanguageChart"></div>
+        </div>
+    }
 </div>
 
-<a class="btn btn-primary mb-3" asp-controller="Documents" asp-action="Import">Завантажити з файлу</a>
-<a class="btn btn-primary mb-3" asp-controller="Documents" asp-action="Export">Експортувати у файл</a>
+<!-- 📥 Кнопки: тільки для admin -->
+@if (User.IsInRole("admin"))
+{
+    <a class="btn btn-primary mb-3" asp-controller="Documents" asp-action="Import">Завантажити з файлу</a>
+    <a class="btn btn-primary mb-3" asp-controller="Documents" asp-action="Export">Експортувати у файл</a>
 
-<p>
-    <a asp-action="Create">Додати новий документ</a>
-</p>
+    <p>
+        <a asp-action="Create" class="btn btn-success">Додати новий документ</a>
+    </p>
+}
 
 <table class="table table-bordered">
     <thead>
@@ -117,14 +128,23 @@
                 <td>@Html.DisplayFor(modelItem => item.Quantity)</td>
                 <td>@(item.Type != null ? item.Type.Name : "Без типу")</td>
                 <td class="actions-column">
-                    <a asp-action="Edit" asp-route-id="@item.Id">Редагувати</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Деталі</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Видалити</a>
+                    @if (User.IsInRole("admin"))
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id">Редагувати</a> 
+                        <a asp-action="Details" asp-route-id="@item.Id">Деталі</a> 
+                        <a asp-action="Delete" asp-route-id="@item.Id">Видалити</a>
+                    }
+                    else if (User.IsInRole("user"))
+                    {
+                        <a asp-action="Details" asp-route-id="@item.Id">Деталі</a>
+                    }
                 </td>
             </tr>
         }
     </tbody>
 </table>
+
+
 
 @section Scripts
 {

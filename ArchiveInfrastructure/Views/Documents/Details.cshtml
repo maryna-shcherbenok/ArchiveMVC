@@ -76,35 +76,43 @@ else
     <p>Категорії не вказані.</p>
 }
 
-<h3>Екземпляри документа</h3>
-@if (Model.DocumentInstances != null && Model.DocumentInstances.Any())
+<!-- 📦 Екземпляри документа — тільки для admin -->
+@if (User.IsInRole("admin"))
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Інвентарний номер</th>
-                <th>Стан</th>
-                <th>Доступність</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var instance in Model.DocumentInstances)
-            {
+    <h3>Екземпляри документа</h3>
+    @if (Model.DocumentInstances != null && Model.DocumentInstances.Any())
+    {
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>@instance.InventoryNumber</td>
-                    <td>@instance.State</td>
-                    <td>@(instance.Available ? "Доступний" : "Недоступний")</td>
+                    <th>Інвентарний номер</th>
+                    <th>Стан</th>
+                    <th>Доступність</th>
                 </tr>
-            }
-        </tbody>
-    </table>
-}
-else
-{
-    <p><em>Екземпляри відсутні.</em></p>
+            </thead>
+            <tbody>
+                @foreach (var instance in Model.DocumentInstances)
+                {
+                    <tr>
+                        <td>@instance.InventoryNumber</td>
+                        <td>@instance.State</td>
+                        <td>@(instance.Available ? "Доступний" : "Недоступний")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p><em>Екземпляри відсутні.</em></p>
+    }
 }
 
+<!-- 🔘 Кнопки -->
 <div class="mt-4">
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Редагувати</a>
+    @if (User.IsInRole("admin"))
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Редагувати</a>
+    }
     <a asp-action="Index" class="btn btn-secondary">Назад до списку</a>
 </div>
