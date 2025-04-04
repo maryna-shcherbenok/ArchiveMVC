@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ArchiveInfrastructure.Migrations
 {
     [DbContext(typeof(DbarchiveContext))]
-    [Migration("20250318101833_Initial")]
-    partial class Initial
+    [Migration("20250403174639_InitWithCorrectIdentity")]
+    partial class InitWithCorrectIdentity
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -221,11 +221,9 @@ namespace ArchiveInfrastructure.Migrations
                         .HasColumnType("date");
 
                     b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Reservations");
                 });
@@ -254,77 +252,6 @@ namespace ArchiveInfrastructure.Migrations
                     b.HasIndex("ReservationId");
 
                     b.ToTable("ReservationDocument", (string)null);
-                });
-
-            modelBuilder.Entity("ArchiveDomain.Model.User", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("PasswordAccount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Position")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ReaderCardNumber")
-                        .HasColumnType("int");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("ArchiveDomain.Model.AuthorDocument", b =>
@@ -387,13 +314,6 @@ namespace ArchiveInfrastructure.Migrations
                     b.Navigation("Document");
                 });
 
-            modelBuilder.Entity("ArchiveDomain.Model.Reservation", b =>
-                {
-                    b.HasOne("ArchiveDomain.Model.User", null)
-                        .WithMany("Reservations")
-                        .HasForeignKey("UserId");
-                });
-
             modelBuilder.Entity("ArchiveDomain.Model.ReservationDocument", b =>
                 {
                     b.HasOne("ArchiveDomain.Model.DocumentInstance", "DocumentInstance")
@@ -445,11 +365,6 @@ namespace ArchiveInfrastructure.Migrations
             modelBuilder.Entity("ArchiveDomain.Model.Reservation", b =>
                 {
                     b.Navigation("ReservationDocuments");
-                });
-
-            modelBuilder.Entity("ArchiveDomain.Model.User", b =>
-                {
-                    b.Navigation("Reservations");
                 });
 #pragma warning restore 612, 618
         }

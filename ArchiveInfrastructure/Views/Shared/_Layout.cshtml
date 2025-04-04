@@ -23,7 +23,9 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <!-- Ліва частина: меню -->
                     <ul class="navbar-nav flex-grow-1">
                         @if (User.IsInRole("admin"))
                         {
@@ -50,20 +52,37 @@
                             </li>
                         }
                     </ul>
-                    @if (User.Identity.IsAuthenticated)
-                    {
-                        <div class="me-3">
-                            @User?.Identity?.Name
-                        </div>
-                        <form asp-controller="Account" asp-action="Logout" method="post">
-                            <button type="submit" class="btn btn-link">Вийти</button>
-                        </form>
-                    }
-                    else
-                    {
-                        <a asp-controller="Account" asp-action="Login" class="btn bg-light text-dark me-3">Увійти</a>
-                        <a asp-controller="Account" asp-action="Register" class="btn bg-light text-dark me-3">Реєстрація</a>
-                    }
+
+                    <!-- Права частина: кабінет / автентифікація -->
+                    <ul class="navbar-nav ms-auto">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Кабінет (@User.Identity.Name)
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Reservations" asp-action="MyReservations">Мої бронювання</a>
+                                    </li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post" class="dropdown-item m-0 p-0">
+                                            <button type="submit" class="btn btn-link dropdown-item text-start">Вийти</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a asp-controller="Account" asp-action="Login" class="nav-link text-dark">Увійти</a>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-controller="Account" asp-action="Register" class="nav-link text-dark">Реєстрація</a>
+                            </li>
+                        }
+                    </ul>
                 </div>
             </div>
         </nav>

@@ -108,6 +108,26 @@ else
     }
 }
 
+@if (User.Identity.IsAuthenticated)
+{
+    var availableInstance = Model.DocumentInstances.FirstOrDefault(i => i.Available);
+    if (availableInstance != null)
+    {
+        <form asp-controller="Reservations" asp-action="CreateFromInstance" method="get">
+            <input type="hidden" name="documentInstanceId" value="@availableInstance.Id" />
+            <button type="submit" class="btn btn-success">Забронювати</button>
+        </form>
+    }
+    else
+    {
+        <p><strong>Немає доступних екземплярів для бронювання.</strong></p>
+    }
+}
+else
+{
+    <p><em>Увійдіть, щоб забронювати документ.</em></p>
+}
+
 <!-- 🔘 Кнопки -->
 <div class="mt-4">
     @if (User.IsInRole("admin"))

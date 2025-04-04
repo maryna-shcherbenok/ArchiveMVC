@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ArchiveInfrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class InitWithCorrectIdentity : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -50,7 +50,20 @@ namespace ArchiveInfrastructure.Migrations
                     table.PrimaryKey("PK_DocumentTypes", x => x.id);
                 });
 
-            
+            migrationBuilder.CreateTable(
+                name: "Reservations",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ReservationStartDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    ReservationEndDate = table.Column<DateOnly>(type: "date", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Reservations", x => x.id);
+                });
 
             migrationBuilder.CreateTable(
                 name: "Documents",
@@ -73,22 +86,6 @@ namespace ArchiveInfrastructure.Migrations
                         column: x => x.TypeID,
                         principalTable: "DocumentTypes",
                         principalColumn: "id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Reservations",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ReservationStartDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    ReservationEndDate = table.Column<DateOnly>(type: "date", nullable: true),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Reservations", x => x.id);
-            
                 });
 
             migrationBuilder.CreateTable(
@@ -223,11 +220,6 @@ namespace ArchiveInfrastructure.Migrations
                 name: "IX_ReservationDocument_ReservationID",
                 table: "ReservationDocument",
                 column: "ReservationID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Reservations_UserId",
-                table: "Reservations",
-                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -256,9 +248,6 @@ namespace ArchiveInfrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Documents");
-
-            migrationBuilder.DropTable(
-                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "DocumentTypes");
