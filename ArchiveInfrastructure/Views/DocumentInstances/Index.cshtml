@@ -4,35 +4,37 @@
     ViewData["Title"] = "Список екземплярів документів";
 }
 
-<h1 class ="mb-4">Список екземплярів документів</h1>
+<h1 class="mb-4 text-center">Список екземплярів документів</h1>
 
 <div class="row">
     <!-- Форма пошуку та фільтрації -->
     <div class="col-md-6">
-        <h4>Пошук та фільтрація</h4>
-        <form asp-action="Index" method="get">
-            <div class="row mb-2">
-                <div class="col-md-6">
+        <div class="bg-white blur-box p-4 rounded shadow" style="min-height: 489px;">
+            <h4 class="mb-3">Пошук та фільтрація</h4>
+            <form asp-action="Index" method="get">
+
+                <div class="mb-3">
                     <label>Інвентарний номер</label>
-                    <input type="text" name="inventoryNumber" class="form-control form-control-sm" value="@Context.Request.Query["inventoryNumber"]" />
+                    <input type="text" name="inventoryNumber" class="form-control" value="@Context.Request.Query["inventoryNumber"]" />
                 </div>
-                <div class="col-md-6">
+
+                <div class="mb-3">
                     <label>Стан</label>
-                    <input type="text" name="state" class="form-control form-control-sm" value="@Context.Request.Query["state"]" />
+                    <input type="text" name="state" class="form-control" value="@Context.Request.Query["state"]" />
                 </div>
-            </div>
-            <div class="row mb-2">
-                <div class="col-md-6">
+
+                <div class="mb-3">
                     <label>Доступність</label>
-                    <select name="available" class="form-control form-control-sm">
+                    <select name="available" class="form-control">
                         <option value="">Всі</option>
                         <option value="true" selected="@(Context.Request.Query["available"] == "true")">Доступні</option>
                         <option value="false" selected="@(Context.Request.Query["available"] == "false")">Недоступні</option>
                     </select>
                 </div>
-                <div class="col-md-6">
+
+                <div class="mb-3">
                     <label>Документ</label>
-                    <select name="documentId" class="form-control form-control-sm">
+                    <select name="documentId" class="form-control">
                         <option value="">Всі</option>
                         @foreach (var doc in ViewBag.DocumentList)
                         {
@@ -40,27 +42,31 @@
                         }
                     </select>
                 </div>
-            </div>
-            <div class="row mt-3">
-                <div class="col-md-12">
-                    <button type="submit" class="btn btn-primary w-auto">Знайти</button>
-                    <a asp-action="Index" class="btn btn-secondary w-auto">Скинути</a>
+
+                <div class="d-flex gap-2 mt-2">
+                    <button type="submit" class="btn btn-primary btn-animated">Знайти</button>
+                    <a asp-action="Index" class="btn btn-secondary btn-animated">Скинути</a>
                 </div>
-            </div>
-        </form>
+
+            </form>
+        </div>
     </div>
 
     <!-- Діаграма "Екземпляри за станом" -->
     <div class="col-md-6">
-        <h4>Екземпляри за станом</h4>
-        <div id="documentInstancesByStateChart"></div>
+        <div class="bg-white blur-box p-4 rounded shadow" style="min-height: 489px;">
+            <h4 class="mb-3">Екземпляри за станом</h4>
+            <div id="documentInstancesByStateChart" style="width: 100%; height: 400px;"></div>
+        </div>
     </div>
+
 </div>
 
 <p>
     <a asp-action="Create">Додати новий екземпляр</a>
 </p>
 
+<div class="bg-white blur-box p-4 rounded shadow">
 <table class="table table-bordered">
     <thead class="thead-dark">
         <tr>
@@ -97,6 +103,7 @@
         }
     </tbody>
 </table>
+</div>
 
 @section Scripts
 {
@@ -129,17 +136,16 @@
 
                     const options = {
                         title: 'Екземпляри за станом',
-                        width: '100%',
-                        height: 300,
-                        chartArea: { width: '70%' },
-                        hAxis: { title: 'Стан' },
-                        vAxis: { title: 'Кількість' },
-                        legend: { position: 'none' },
-                        bar: { groupWidth: '70%' },
-                        colors: ['#993300'],
+                        pieHole: 0.4,
+                        legend: { position: 'right' },
+                        chartArea: {
+                            width: '90%',
+                            height: '90%'
+                        },
+                        colors: ['#993300', '#c0504d', '#e5b8b7']
                     };
 
-                    const chart = new google.visualization.ColumnChart(document.getElementById('documentInstancesByStateChart'));
+                    const chart = new google.visualization.PieChart(document.getElementById('documentInstancesByStateChart'));
                     chart.draw(dataTable, options);
                 })
                 .catch(error => console.error('Помилка запиту:', error));

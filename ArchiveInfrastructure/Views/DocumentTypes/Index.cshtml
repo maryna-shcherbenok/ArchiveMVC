@@ -1,14 +1,16 @@
 ﻿@model IEnumerable<ArchiveDomain.Model.DocumentType>
 
 @{
-    ViewData["Title"] = "Типи документів у архіві";
+    ViewData["Title"] = "Типи документів";
 }
 
-<h1>Типи документів у архіві</h1>
+<h1>Типи документів</h1>
 
 <p>
     <a asp-action="Create">Додати новий тип документів</a>
 </p>
+
+<div class="bg-white blur-box p-4 rounded shadow">
 <table class="table">
     <thead>
         <tr>
@@ -33,3 +35,4 @@
 }
     </tbody>
 </table>
+</div>

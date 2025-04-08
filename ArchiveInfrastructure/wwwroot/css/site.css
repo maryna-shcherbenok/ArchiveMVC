@@ -80,3 +80,26 @@ th.actions-column, td.actions-column {
 .footer[b-b9wdmkveo5] {
     background-color: #fff;
 }
+
+.btn-animated {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-animated:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.page-background {
+    /* background-image: url('/images/hoto_2025-04-07_17-01-40.jpg');  фон для усіх сторінок */
+    background-color: #F8F8F8;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    min-height: 100vh;
+    padding-top: 20px;
+}
+
+table tbody tr {
+    background-color: white !important;
+}

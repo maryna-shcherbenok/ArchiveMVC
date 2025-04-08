@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ArchiveDomain.Model;
+using ArchiveInfrastructure.Services;
+using ArchiveInfrastructure.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,14 +17,15 @@ namespace ArchiveInfrastructure.Controllers
     {
         private readonly DbarchiveContext _context;
         private readonly UserManager<User> _userManager;
+        private readonly IEmailService _emailService;
 
-        public ReservationsController(DbarchiveContext context, UserManager<User> userManager)
+        public ReservationsController(DbarchiveContext context, UserManager<User> userManager, IEmailService emailService)
         {
             _context = context;
             _userManager = userManager;
+            _emailService = emailService;
         }
 
-        // 🔒 Адміністратор: Перегляд усіх бронювань
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Index()
         {
@@ -32,10 +35,25 @@ namespace ArchiveInfrastructure.Controllers
                         .ThenInclude(di => di.Document)
                 .ToListAsync();
 
+            var userIds = reservations
+                .Select(r => r.UserId)
+                .Where(id => id != null)
+                .Distinct()
+                .ToList();
+
+            var usersDict = new Dictionary<string, string>();
+            foreach (var userId in userIds)
+            {
+                var user = await _userManager.FindByIdAsync(userId!);
+                if (user != null)
+                    usersDict[userId!] = user.Email!;
+            }
+
+            ViewBag.UsersDict = usersDict;
             return View(reservations);
         }
 
-        // 👤 Користувач: Перегляд своїх бронювань
+        [Authorize(Roles = "user")]
         public async Task<IActionResult> MyReservations()
         {
             var userId = _userManager.GetUserId(User);
@@ -50,38 +68,109 @@ namespace ArchiveInfrastructure.Controllers
             return View(reservations);
         }
 
-        // ✅ Бронювання документа з екземпляра
-        public async Task<IActionResult> CreateFromInstance(int documentInstanceId)
+        [Authorize(Roles = "user")]
+        public async Task<IActionResult> Create(int documentInstanceId)
         {
+            var now = DateTime.Now;
+
             var documentInstance = await _context.DocumentInstances
                 .Include(d => d.Document)
                 .FirstOrDefaultAsync(d => d.Id == documentInstanceId);
 
-            if (documentInstance == null || !documentInstance.Available)
+            if (documentInstance == null)
+                return NotFound("Екземпляр не знайдено.");
+
+            var isCurrentlyReserved = await _context.Reservations
+                .Where(r => r.ReservationDocuments.Any(rd => rd.DocumentInstanceId == documentInstanceId))
+                .AnyAsync(r => r.ReservationStartDateTime <= now && r.ReservationEndDateTime >= now);
+
+            if (isCurrentlyReserved)
+                return NotFound("Документ зараз заброньований. Виберіть інший час.");
+
+            if (documentInstance == null || !documentInstance.Available || documentInstance.State == "Пошкоджений")
+            {
                 return NotFound("Документ недоступний для бронювання.");
+            }
+
+            var model = new ReservationCreateViewModel
+            {
+                DocumentInstanceId = documentInstanceId,
+                StartDateTime = now,
+                EndDateTime = now.AddHours(2)
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "user")]
+        public async Task<IActionResult> Create(ReservationCreateViewModel model)
+        {
+            var start = model.StartDateTime;
+            var end = model.EndDateTime;
+
+            if (end <= start)
+                ModelState.AddModelError(nameof(model.EndDateTime), "Дата завершення має бути пізніше за дату початку.");
+
+            if ((end - start).TotalHours > 2)
+                ModelState.AddModelError("", "Тривалість бронювання не може перевищувати 2 години.");
+
+            if (start.Date != end.Date)
+                ModelState.AddModelError("", "Бронювання повинно здійснюватись в межах одного календарного дня.");
+
+            if (start.DayOfWeek == DayOfWeek.Saturday || start.DayOfWeek == DayOfWeek.Sunday)
+                ModelState.AddModelError("", "Бронювання можливе лише в робочі дні (понеділок — пʼятниця).");
+
+            var workingStart = TimeSpan.FromHours(9);
+            var workingEnd = TimeSpan.FromHours(17);
+
+            if (start.TimeOfDay < workingStart || end.TimeOfDay > workingEnd)
+                ModelState.AddModelError("", "Бронювання можливе лише з 09:00 до 17:00.");
+
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var overlapping = await _context.Reservations
+            .Where(r => r.ReservationDocuments.Any(rd => rd.DocumentInstanceId == model.DocumentInstanceId))
+            .AnyAsync(r =>
+                    model.StartDateTime < r.ReservationEndDateTime &&
+                    model.EndDateTime > r.ReservationStartDateTime
+            );
+
+            if (overlapping)
+            {
+                ModelState.AddModelError("", "Цей екземпляр уже заброньований на вибраний проміжок часу.");
+                return View(model);
+            }
+
+            var documentInstance = await _context.DocumentInstances
+                .Include(d => d.Document)
+                .FirstOrDefaultAsync(d => d.Id == model.DocumentInstanceId);
+
+            if (documentInstance == null)
+                return NotFound("Документ недоступний.");
 
             var reservation = new Reservation
             {
                 UserId = _userManager.GetUserId(User),
-                ReservationStartDate = DateOnly.FromDateTime(DateTime.Today),
+                ReservationStartDateTime = start,
+                ReservationEndDateTime = end,
                 ReservationDocuments = new List<ReservationDocument>
                 {
                     new ReservationDocument
                     {
-                        DocumentInstanceId = documentInstanceId
+                        DocumentInstanceId = model.DocumentInstanceId
                     }
                 }
             };
 
             _context.Reservations.Add(reservation);
-            documentInstance.Available = false;
-
             await _context.SaveChangesAsync();
 
             return RedirectToAction("MyReservations");
         }
 
-        // ❌ Скасування бронювання користувачем
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Cancel(int id)
@@ -94,14 +183,6 @@ namespace ArchiveInfrastructure.Controllers
             if (reservation == null || reservation.UserId != _userManager.GetUserId(User))
                 return NotFound();
 
-            // Звільнити екземпляри
-            foreach (var rd in reservation.ReservationDocuments)
-            {
-                if (rd.DocumentInstance != null)
-                    rd.DocumentInstance.Available = true;
-            }
-
-            // Спочатку видалити зв’язки
             _context.ReservationDocuments.RemoveRange(reservation.ReservationDocuments);
             _context.Reservations.Remove(reservation);
 
@@ -109,7 +190,6 @@ namespace ArchiveInfrastructure.Controllers
             return RedirectToAction("MyReservations");
         }
 
-        // 🔍 Адмін: Деталі бронювання
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Details(int? id)
         {
@@ -126,7 +206,6 @@ namespace ArchiveInfrastructure.Controllers
             return View(reservation);
         }
 
-        // 🗑️ Адмін: Видалення бронювання
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -143,7 +222,6 @@ namespace ArchiveInfrastructure.Controllers
             return View(reservation);
         }
 
-        // POST: Reservations/Delete/5 (адмін)
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "admin")]
@@ -156,15 +234,20 @@ namespace ArchiveInfrastructure.Controllers
 
             if (reservation != null)
             {
-                foreach (var rd in reservation.ReservationDocuments)
+                if (!string.IsNullOrEmpty(reservation.UserId))
                 {
-                    if (rd.DocumentInstance != null)
-                        rd.DocumentInstance.Available = true;
+                    var user = await _userManager.FindByIdAsync(reservation.UserId);
+                    if (user != null)
+                    {
+                        await _emailService.SendEmailAsync(
+                            user.Email!,
+                            "Ваше бронювання було скасовано",
+                            $"Шановний {user.Email}, ваше бронювання від {reservation.ReservationStartDateTime:g} було скасовано адміністратором.");
+                    }
                 }
 
                 _context.ReservationDocuments.RemoveRange(reservation.ReservationDocuments);
                 _context.Reservations.Remove(reservation);
-
                 await _context.SaveChangesAsync();
             }
 

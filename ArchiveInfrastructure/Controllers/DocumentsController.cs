@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ArchiveInfrastructure.Controllers;
 
-[Authorize]
+// [Authorize] 
 public class DocumentsController : Controller
 {
     private readonly DbarchiveContext _context;

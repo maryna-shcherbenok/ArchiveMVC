@@ -1,35 +1,38 @@
 ﻿@model ArchiveInfrastructure.ViewModels.LoginViewModel
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = "Увійти";
 }
 
 <div class="container mx-auto">
     <div class="row justify-content-center">
         <div class="col-12 col-lg-6">
-
-            <h1 class="mt-5 mb-3 h3">Login</h1>
-
+            <div class="bg-white blur-box p-4 rounded shadow">
+                <h1 class="mt-5 mb-3 h3">Увійти</h1>
             <form asp-action="Login" method="post">
                 <input type="hidden" asp-for="ReturnUrl" />
+
                 <div class="mb-3">
-                    <label class="form-label">Email</label>
-                    <input type="text" class="form-control" asp-for="Email" />
+                    @Html.LabelFor(m => m.Email, new { @class = "form-label" })
+                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Password</label>
-                    <input type="password" class="form-control" asp-for="Password" />
+                    @Html.LabelFor(m => m.Password, new { @class = "form-label" })
+                    @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
                 </div>
 
                 <div class="mb-3 form-check">
-                    <input type="checkbox" class="form-check-input" asp-for="RememberMe" />
-                    <label class="form-check-label" for="RememberMe">Remember Me</label>
+                    @Html.CheckBoxFor(m => m.RememberMe, new { @class = "form-check-input" })
+                    @Html.LabelFor(m => m.RememberMe, new { @class = "form-check-label" })
                 </div>
 
                 <div class="mb-3">
-                    <button type="submit" class="btn bg-danger text-bg-success text-light">Login</button>
+                        <button type="submit" class="btn btn-primary btn-animated mb-3">Увійти</button>
                 </div>
             </form>
+            </div>
         </div>
     </div>
 </div>

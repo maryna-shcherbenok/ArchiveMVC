@@ -11,102 +11,83 @@
     <h3>@ViewBag.FilterType: @ViewBag.FilterValue</h3>
 }
 
-<div class="row">
-    <!-- 🔍 Пошук та фільтрація — доступно всім -->
-    <div class="col-md-6">
-        <h4>Пошук та фільтрація документів</h4>
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="bg-white p-4 rounded shadow">
+            <h4 class="mb-4">Пошук та фільтрація документів</h4>
+            <form asp-action="Index" method="get">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label>Назва</label>
+                        <input type="text" name="title" class="form-control" value="@Context.Request.Query["title"]" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Мова</label>
+                        <input type="text" name="language" class="form-control" value="@Context.Request.Query["language"]" />
+                    </div>
+                </div>
 
-        <form asp-action="Index" method="get">
-            <div class="row mb-2">
-                <div class="col-md-6">
-                    <label>Назва</label>
-                    <input type="text" name="title" class="form-control form-control-sm" value="@Context.Request.Query["title"]" />
-                </div>
-                <div class="col-md-6">
-                    <label>Мова</label>
-                    <input type="text" name="language" class="form-control form-control-sm" value="@Context.Request.Query["language"]" />
-                </div>
-            </div>
-
-            <div class="row mb-2">
-                <div class="col-md-6">
-                    <label>Тип документа</label>
-                    <select name="typeId" class="form-control form-control-sm">
-                        <option value="">Всі</option>
-                        @if (ViewBag.DocumentTypes != null)
-                        {
-                            @foreach (var type in ViewBag.DocumentTypes)
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label>Тип документа</label>
+                        <select name="typeId" class="form-control">
+                            <option value="">Всі</option>
+                            @foreach (var type in ViewBag.DocumentTypes as List<ArchiveDomain.Model.DocumentType> ?? new())
                             {
-                                <option value="@type.Id" selected="@(type.Id.ToString() == Context.Request.Query["typeId"] ? "selected" : null)">@type.Name</option>
-                            }
-                        }
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label>Автор</label>
-                    <select name="authorId" class="form-control form-control-sm">
-                        <option value="">Всі</option>
-                        @if (ViewBag.Authors != null)
-                        {
-                            @foreach (var author in ViewBag.Authors)
-                            {
-                                <option value="@author.Id" selected="@(author.Id.ToString() == Context.Request.Query["authorId"] ? "selected" : null)">
-                                    @author.Name
+                                <option value="@type.Id" selected="@(type.Id.ToString() == Context.Request.Query["typeId"] ? "selected" : null)">
+                                    @type.Name
                                 </option>
                             }
-                        }
-                    </select>
-                </div>
-            </div>
-
-            <div class="row mb-2">
-                <div class="col-md-6">
-                    <label>Категорія</label>
-                    <select name="categoryId" class="form-control form-control-sm">
-                        <option value="">Всі</option>
-                        @if (ViewBag.Categories != null)
-                        {
-                            @foreach (var category in ViewBag.Categories)
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Категорія</label>
+                        <select name="categoryId" class="form-control">
+                            <option value="">Всі</option>
+                            @foreach (var category in ViewBag.Categories as List<ArchiveDomain.Model.Category> ?? new())
                             {
                                 <option value="@category.Id" selected="@(category.Id.ToString() == Context.Request.Query["categoryId"] ? "selected" : null)">
                                     @category.Name
                                 </option>
                             }
-                        }
-                    </select>
+                        </select>
+                    </div>
                 </div>
-            </div>
 
-            <div class="row mt-3">
-                <div class="col-md-12">
-                    <button type="submit" class="btn btn-primary w-auto">Пошук</button>
-                    <a asp-action="Index" class="btn btn-secondary w-auto">Скинути</a>
+                <div class="row align-items-end">
+                    <div class="col-md-6 mb-3">
+                        <label>Автор</label>
+                        <select name="authorId" class="form-control">
+                            <option value="">Всі</option>
+                            @foreach (var author in ViewBag.Authors as List<ArchiveDomain.Model.Author> ?? new())
+                            {
+                                <option value="@author.Id" selected="@(author.Id.ToString() == Context.Request.Query["authorId"] ? "selected" : null)">
+                                    @author.Name
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-animated mt-auto">Пошук</button>
+                        <a asp-action="Index" class="btn btn-secondary btn-animated mt-auto">Скинути</a>
+                    </div>
                 </div>
-            </div>
-        </form>
-    </div>
-
-    <!-- 📊 Діаграма: тільки для admin -->
-    @if (User.IsInRole("admin"))
-    {
-        <div class="col-md-6">
-            <h4>Документи за мовами</h4>
-            <div id="documentsByLanguageChart"></div>
+            </form>
         </div>
-    }
+    </div>
 </div>
 
-<!-- 📥 Кнопки: тільки для admin -->
+<!-- Кнопки: тільки для admin -->
 @if (User.IsInRole("admin"))
 {
-    <a class="btn btn-primary mb-3" asp-controller="Documents" asp-action="Import">Завантажити з файлу</a>
-    <a class="btn btn-primary mb-3" asp-controller="Documents" asp-action="Export">Експортувати у файл</a>
-
+    <a class="btn btn-primary btn-animated mb-3" asp-controller="Documents" asp-action="Import">Завантажити з файлу</a>
+    <a class="btn btn-primary btn-animated mb-3" asp-controller="Documents" asp-action="Export">Експортувати у файл</a>
     <p>
-        <a asp-action="Create" class="btn btn-success">Додати новий документ</a>
+        <a asp-action="Create">Додати новий документ</a>
     </p>
 }
 
+<div class="bg-white blur-box p-4 rounded shadow">
 <table class="table table-bordered">
     <thead>
         <tr>
@@ -127,24 +108,54 @@
                 <td>@Html.DisplayFor(modelItem => item.Language)</td>
                 <td>@Html.DisplayFor(modelItem => item.Quantity)</td>
                 <td>@(item.Type != null ? item.Type.Name : "Без типу")</td>
-                <td class="actions-column">
-                    @if (User.IsInRole("admin"))
-                    {
-                        <a asp-action="Edit" asp-route-id="@item.Id">Редагувати</a> 
-                        <a asp-action="Details" asp-route-id="@item.Id">Деталі</a> 
-                        <a asp-action="Delete" asp-route-id="@item.Id">Видалити</a>
-                    }
-                    else if (User.IsInRole("user"))
-                    {
-                        <a asp-action="Details" asp-route-id="@item.Id">Деталі</a>
-                    }
-                </td>
+                    <td class="actions-column">
+                        @if (User.IsInRole("admin"))
+                        {
+                            <a asp-action="Edit" asp-route-id="@item.Id">Редагувати</a>
+                            <span class="mx-2">|</span>
+                            <a asp-action="Details" asp-route-id="@item.Id">Деталі</a>
+                            <span class="mx-2">|</span>
+                            <a asp-action="Delete" asp-route-id="@item.Id">Видалити</a>
+                        }
+                        else if (User.IsInRole("user"))
+                        {
+                            <a asp-action="Details" asp-route-id="@item.Id">Деталі</a>
+                            <span class="mx-2">|</span>
+
+                            var now = DateTime.Now;
+
+                            var availableInstance = item.DocumentInstances?
+                            .Where(instance =>
+                            instance.Available &&
+                            (instance.State == "Придатний" || instance.State == "Новий") &&
+                            instance.ReservationDocuments.All(rd =>
+                            rd.Reservation.ReservationEndDateTime <= now ||
+                            rd.Reservation.ReservationStartDateTime >= now
+                            )
+                            )
+                            .FirstOrDefault();
+
+                            if (availableInstance != null)
+                            {
+                                <a asp-controller="Reservations"
+                                   asp-action="Create"
+                                   asp-route-documentInstanceId="@availableInstance.Id"
+                                   class="btn btn-primary btn-animated w-auto">
+                                    Забронювати
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="text-muted ms-2">Недоступний</span>
+                            }
+                        }
+
+                    </td>
             </tr>
         }
     </tbody>
 </table>
-
-
+</div>
 
 @section Scripts
 {

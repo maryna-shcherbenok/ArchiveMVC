@@ -76,46 +76,47 @@ else
     <p>Категорії не вказані.</p>
 }
 
-<!-- 📦 Екземпляри документа — тільки для admin -->
 @if (User.IsInRole("admin"))
 {
-    <h3>Екземпляри документа</h3>
-    @if (Model.DocumentInstances != null && Model.DocumentInstances.Any())
-    {
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Інвентарний номер</th>
-                    <th>Стан</th>
-                    <th>Доступність</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var instance in Model.DocumentInstances)
-                {
+    <div class="bg-white blur-box p-4 rounded shadow">
+        <h3>Екземпляри документа</h3>
+        @if (Model.DocumentInstances != null && Model.DocumentInstances.Any())
+        {
+            <table class="table">
+                <thead>
                     <tr>
-                        <td>@instance.InventoryNumber</td>
-                        <td>@instance.State</td>
-                        <td>@(instance.Available ? "Доступний" : "Недоступний")</td>
+                        <th>Інвентарний номер</th>
+                        <th>Стан</th>
+                        <th>Доступність</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    }
-    else
-    {
-        <p><em>Екземпляри відсутні.</em></p>
-    }
+                </thead>
+                <tbody>
+                    @foreach (var instance in Model.DocumentInstances)
+                    {
+                        <tr>
+                            <td>@instance.InventoryNumber</td>
+                            <td>@instance.State</td>
+                            <td>@(instance.Available ? "Доступний" : "Недоступний")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p><em>Екземпляри відсутні.</em></p>
+        }
+    </div>
 }
 
-@if (User.Identity.IsAuthenticated)
+@if (User.IsInRole("user"))
 {
     var availableInstance = Model.DocumentInstances.FirstOrDefault(i => i.Available);
     if (availableInstance != null)
     {
-        <form asp-controller="Reservations" asp-action="CreateFromInstance" method="get">
+        <form asp-controller="Reservations" asp-action="Create" method="get">
             <input type="hidden" name="documentInstanceId" value="@availableInstance.Id" />
-            <button type="submit" class="btn btn-success">Забронювати</button>
+            <button type="submit" class="btn btn-primary btn-animated w-auto">Забронювати</button>
         </form>
     }
     else
@@ -123,16 +124,17 @@ else
         <p><strong>Немає доступних екземплярів для бронювання.</strong></p>
     }
 }
-else
+else if (!User.Identity.IsAuthenticated)
 {
-    <p><em>Увійдіть, щоб забронювати документ.</em></p>
+<!-- Повністю приховано екземпляри -->
+<p><em>Увійдіть у систему, щоб переглянути можливість бронювання документа.</em></p>
 }
 
-<!-- 🔘 Кнопки -->
+<!-- Кнопки -->
 <div class="mt-4">
     @if (User.IsInRole("admin"))
     {
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Редагувати</a>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-animated">Редагувати</a>
     }
-    <a asp-action="Index" class="btn btn-secondary">Назад до списку</a>
+    <a asp-action="Index" class="btn btn-secondary btn-animated">← Назад до списку</a>
 </div>

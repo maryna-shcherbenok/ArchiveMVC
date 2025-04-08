@@ -23,6 +23,7 @@ namespace ArchiveInfrastructure.ViewModels
         [DataType(DataType.CreditCard)]
         public int ReaderCardNumber { get; set; }
 
+        // Поки прибрала це поле
         [Display(Name = "Статус")]
         public string? Position { get; set; }
 

@@ -1,36 +1,39 @@
 ﻿@model ArchiveDomain.Model.Reservation
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Деталі бронювання";
 }
 
-<h1>Details</h1>
+<h1>Деталі бронювання</h1>
 
 <div>
-    <h4>Reservation</h4>
+    <h4>Бронювання</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UserId)
+        <dt class="col-sm-2">
+            Користувач
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.UserId)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ReservationStartDate)
+
+        <dt class="col-sm-2">
+            Початок
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ReservationStartDate)
+        <dd class="col-sm-10">
+            @Model.ReservationStartDateTime.ToString("g")
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ReservationEndDate)
+
+        <dt class="col-sm-2">
+            Завершення
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ReservationEndDate)
+        <dd class="col-sm-10">
+            @Model.ReservationEndDateTime?.ToString("g")
         </dd>
     </dl>
 </div>
+
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary btn-animated">Редагувати</a>
+    <a asp-action="Index" class="btn btn-secondary btn-animated">← Назад до списку</a>
 </div>

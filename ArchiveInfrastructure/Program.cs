@@ -23,6 +23,8 @@ builder.Services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<Iden
 
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 builder.Services.Configure<IdentityOptions>(options =>
 {
     options.Password.RequireDigit = true;

@@ -14,7 +14,7 @@
         </div>
     }
 
-    <div class="card shadow-sm mb-4">
+    <div class="bg-white p-4 rounded shadow">
         <div class="card-body">
             <h5 class="card-title">Оберіть Excel-файл для завантаження</h5>
             @using (Html.BeginForm("Import", "Documents", FormMethod.Post, new { enctype = "multipart/form-data", id = "frm-excel" }))
@@ -24,8 +24,8 @@
                     <input type="file" name="fileExcel" id="fileExcel" class="form-control" required />
                 </div>
                 <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary">Завантажити</button>
-                    <a asp-action="Index" class="btn btn-secondary">Назад до списку</a>
+                    <button type="submit" class="btn btn-primary btn-animated">Завантажити</button>
+                    <a asp-action="Index" class="btn btn-secondary btn-animated">Назад до списку</a>
                 </div>
             }
         </div>

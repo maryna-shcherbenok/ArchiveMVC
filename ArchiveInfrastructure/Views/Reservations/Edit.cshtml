@@ -1,44 +1,52 @@
 ﻿@model ArchiveDomain.Model.Reservation
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Редагувати бронювання";
 }
 
-<h1>Edit</h1>
+<h1>Редагувати бронювання</h1>
 
-<h4>Reservation</h4>
+<h4>Бронювання</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <div class="form-group">
-                <label asp-for="UserId" class="control-label"></label>
+                <label asp-for="UserId" class="control-label">Користувач</label>
                 <input asp-for="UserId" class="form-control" />
                 <span asp-validation-for="UserId" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="ReservationStartDate" class="control-label"></label>
-                <input asp-for="ReservationStartDate" class="form-control" />
-                <span asp-validation-for="ReservationStartDate" class="text-danger"></span>
+                <label asp-for="ReservationStartDateTime" class="control-label">Початок бронювання</label>
+                <input asp-for="ReservationStartDateTime" class="form-control" type="datetime-local"
+                       value="@Model.ReservationStartDateTime.ToString("yyyy-MM-ddTHH:mm")" />
+                <span asp-validation-for="ReservationStartDateTime" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="ReservationEndDate" class="control-label"></label>
-                <input asp-for="ReservationEndDate" class="form-control" />
-                <span asp-validation-for="ReservationEndDate" class="text-danger"></span>
+                <label asp-for="ReservationEndDateTime" class="control-label">Завершення бронювання</label>
+                <input asp-for="ReservationEndDateTime" class="form-control" type="datetime-local"
+                       value="@Model.ReservationEndDateTime?.ToString("yyyy-MM-ddTHH:mm")" />
+                <span asp-validation-for="ReservationEndDateTime" class="text-danger"></span>
             </div>
+
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <input type="submit" value="Зберегти" class="btn btn-primary btn-animated" />
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index" class="btn btn-secondary btn-animated">← Назад до списку</a>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

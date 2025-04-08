@@ -211,11 +211,11 @@ namespace ArchiveInfrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateOnly?>("ReservationEndDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime?>("ReservationEndDateTime")
+                        .HasColumnType("datetime2");
 
-                    b.Property<DateOnly>("ReservationStartDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("ReservationStartDateTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(max)");

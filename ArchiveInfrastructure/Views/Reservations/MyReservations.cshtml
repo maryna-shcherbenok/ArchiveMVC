@@ -6,16 +6,18 @@
 
 <h2 class="mb-4">Мої бронювання</h2>
 
+<div class="blur-box p-4 rounded shadow">
 @if (!Model.Any())
 {
     <p><em>У вас поки що немає бронювань.</em></p>
 }
 else
 {
-    <table class="table table-striped table-bordered">
+    <table class="table table-bordered">
         <thead>
             <tr>
-                <th>Дата бронювання</th>
+                <th>Початок</th>
+                <th>Завершення</th>
                 <th>Назва документа</th>
                 <th>Дії</th>
             </tr>
@@ -26,11 +28,12 @@ else
                 foreach (var doc in reservation.ReservationDocuments)
                 {
                     <tr>
-                        <td>@reservation.ReservationStartDate</td>
+                        <td>@reservation.ReservationStartDateTime.ToString("g")</td>
+                        <td>@reservation.ReservationEndDateTime?.ToString("g")</td>
                         <td>@doc.DocumentInstance.Document?.Title</td>
                         <td>
                             <form asp-action="Cancel" method="post" asp-route-id="@reservation.Id">
-                                <button type="submit" class="btn btn-danger btn-sm"
+                                    <button type="submit" class="btn btn-primary btn-animated mb-3"
                                         onclick="return confirm('Ви впевнені, що хочете скасувати бронювання?');">
                                     Скасувати
                                 </button>
@@ -42,4 +45,4 @@ else
         </tbody>
     </table>
 }
-
+</div>

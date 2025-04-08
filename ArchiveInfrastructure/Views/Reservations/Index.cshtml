@@ -1,47 +1,84 @@
 ﻿@model IEnumerable<ArchiveDomain.Model.Reservation>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Усі бронювання";
 }
 
-<h1>Index</h1>
+<h1 class="text-center">Усі бронювання</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.UserId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ReservationStartDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ReservationEndDate)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.UserId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ReservationStartDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ReservationEndDate)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+<!-- Діаграма бронювань по місяцях -->
+<div class="mb-4">
+    <h3 class="mt-5">Кількість бронювань по місяцях</h3>
+    <div id="reservationsByMonthChart" style="height: 300px;"></div>
+</div>
+
+<div class="bg-white blur-box p-4 rounded shadow">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Користувач</th>
+                <th>Початок бронювання</th>
+                <th>Завершення бронювання</th>
+                <th>Документи</th> <!-- Додала -->
+                <th style="width: 400px;">Дії</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@(ViewBag.UsersDict.ContainsKey(item.UserId) ? ViewBag.UsersDict[item.UserId] : item.UserId)</td>
+                    <td>@item.ReservationStartDateTime.ToString("g")</td>
+                    <td>@item.ReservationEndDateTime?.ToString("g")</td>
+                    <td>
+                        @foreach (var doc in item.ReservationDocuments)
+                        {
+                            <div>@doc.DocumentInstance?.Document?.Title</div>
+                        }
+                    </td>
+                    <td>
+                        <!-- <a asp-action="Edit" asp-route-id="@item.Id">Редагувати</a> | -->
+                        <a asp-action="Details" asp-route-id="@item.Id">Деталі</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id">Видалити</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts
+{
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', { 'packages': ['corechart'] });
+        google.charts.setOnLoadCallback(drawReservationsByMonthChart);
+
+        function drawReservationsByMonthChart() {
+            fetch('/api/charts/countReservationsByMonth')
+                .then(response => response.json())
+                .then(data => {
+                    const dataTable = new google.visualization.DataTable();
+                    dataTable.addColumn('string', 'Місяць');
+                    dataTable.addColumn('number', 'Кількість');
+                    data.forEach(item => dataTable.addRow([item.month, item.count]));
+
+                    const options = {
+                        title: 'Кількість бронювань по місяцях',
+                        width: '100%',
+                        height: 300,
+                        chartArea: { width: '70%' },
+                        hAxis: { title: 'Місяць' },
+                        vAxis: { title: 'Кількість' },
+                        legend: { position: 'none' },
+                        bar: { groupWidth: '70%' },
+                        colors: ['#993300'],
+                    };
+
+                    const chart = new google.visualization.ColumnChart(document.getElementById('reservationsByMonthChart'));
+                    chart.draw(dataTable, options);
+                })
+                .catch(error => console.error('Помилка при завантаженні даних:', error));
+        }
+    </script>
 }
-    </tbody>
-</table>
