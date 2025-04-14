@@ -2,8 +2,9 @@
     ViewData["Title"] = "Імпорт документів";
 }
 
-<div class="container mt-4">
-    <h2 class="mb-3">Імпорт документів та екземплярів</h2>
+<h1 class="mb-4 text-center">Імпорт документів та екземплярів</h1>
+
+<div class="bg-white blur-box p-4 rounded shadow">
 
     @* Повідомлення про помилки *@
     @if (TempData["ErrorMessage"] != null)
@@ -14,20 +15,15 @@
         </div>
     }
 
-    <div class="bg-white p-4 rounded shadow">
-        <div class="card-body">
-            <h5 class="card-title">Оберіть Excel-файл для завантаження</h5>
-            @using (Html.BeginForm("Import", "Documents", FormMethod.Post, new { enctype = "multipart/form-data", id = "frm-excel" }))
-            {
-                <div class="mb-3">
-                    <label for="fileExcel" class="form-label">Завантажте Excel-файл:</label>
-                    <input type="file" name="fileExcel" id="fileExcel" class="form-control" required />
-                </div>
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary btn-animated">Завантажити</button>
-                    <a asp-action="Index" class="btn btn-secondary btn-animated">Назад до списку</a>
-                </div>
-            }
+    <form asp-action="Import" asp-controller="Documents" method="post" enctype="multipart/form-data" id="frm-excel">
+        <div class="mb-3">
+            <label for="fileExcel" class="form-label">Завантажте Excel-файл:</label>
+            <input type="file" name="fileExcel" id="fileExcel" class="form-control" required />
         </div>
-    </div>
+
+        <div class="d-flex gap-3">
+            <button type="submit" class="btn btn-outline-danger btn-animated">Завантажити</button>
+            <a asp-action="Index" class="btn btn-outline-primary btn-animated">Назад до списку</a>
+        </div>
+    </form>
 </div>

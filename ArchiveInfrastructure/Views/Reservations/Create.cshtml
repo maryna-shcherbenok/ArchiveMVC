@@ -4,33 +4,48 @@
     ViewData["Title"] = "Бронювання документа";
 }
 
-<h2 class="mb-4 text-center">Бронювання документа</h2>
+<h1 class="mb-4 text-center text-uppercase">Бронювання документа</h1>
 
-<div class="alert alert-info">
+<div class="alert alert-info px-4 py-2 mb-4 small shadow-sm" style="max-width: 700px; margin: 0 auto;">
     Виберіть дату та час початку і завершення бронювання. <br />
     <strong>Увага:</strong> доступно лише у робочі дні (пн–пт), з 09:00 до 17:00. Максимальна тривалість — 2 години.
 </div>
 
-<form asp-action="Create" method="post" class="bg-white p-4 rounded shadow">
-    <input type="hidden" asp-for="DocumentInstanceId" />
-
-    <div class="mb-3">
-        <label asp-for="StartDateTime" class="form-label">Початок бронювання</label>
-        <input asp-for="StartDateTime" type="text" class="form-control" id="StartDateTime" />
-        <span asp-validation-for="StartDateTime" class="text-danger"></span>
+<!-- Виведення загальних помилок -->
+@if (!ViewData.ModelState.IsValid && ViewData.ModelState.ContainsKey("") && ViewData.ModelState[""]?.Errors.Count > 0)
+{
+    <div class="alert alert-warning alert-dismissible fade show col-md-6 mx-auto" role="alert">
+        @foreach (var error in ViewData.ModelState[""]!.Errors)
+        {
+            <div>@error.ErrorMessage</div>
+        }
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрити"></button>
     </div>
+}
 
-    <div class="mb-3">
-        <label asp-for="EndDateTime" class="form-label">Завершення бронювання</label>
-        <input asp-for="EndDateTime" type="text" class="form-control" id="EndDateTime" />
-        <span asp-validation-for="EndDateTime" class="text-danger"></span>
-    </div>
+<div class="bg-white blur-box p-4 rounded shadow col-md-6 mx-auto">
+    <form asp-action="Create" method="post">
+        <input type="hidden" asp-for="DocumentInstanceId" />
 
-    <div class="d-flex gap-3">
-        <button type="submit" class="btn btn-primary btn-animated">Підтвердити</button>
-        <a asp-controller="Documents" asp-action="Index" class="btn btn-secondary btn-animated">← Назад до документів</a>
-    </div>
-</form>
+        <div class="mb-3">
+            <label asp-for="StartDateTime" class="form-label">Початок бронювання</label>
+            <input asp-for="StartDateTime" type="text" class="form-control" />
+            <span asp-validation-for="StartDateTime" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="EndDateTime" class="form-label">Завершення бронювання</label>
+            <input asp-for="EndDateTime" type="text" class="form-control" />
+            <span asp-validation-for="EndDateTime" class="text-danger"></span>
+        </div>
+
+        <div class="d-flex justify-content-center gap-3 mt-4">
+            <button type="submit" class="btn btn-outline-danger btn-animated">Підтвердити</button>
+            <a asp-controller="Documents" asp-action="Index" class="btn btn-outline-primary btn-animated">Назад</a>
+        </div>
+    </form>
+</div>
+
 
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")

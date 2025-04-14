@@ -1,42 +1,46 @@
 ﻿@model ArchiveDomain.Model.Reservation
 
 @{
-    ViewData["Title"] = "Видалення";
+    ViewData["Title"] = "Деталі бронювання";
 }
 
-<h1>Видалити бронювання</h1>
+<h1 class="mb-4 text-center">Деталі бронювання</h1>
 
-<h3>Ви впевнені, що хочете видалити це бронювання?</h3>
-
-<div>
-    <h4>Інформація про бронювання</h4>
-    <hr />
+<div class="bg-white blur-box p-4 rounded shadow mb-4">
     <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.UserId)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.UserId)
+        <dt class="col-sm-3">Користувач:</dt>
+        <dd class="col-sm-9">
+            @(ViewBag.UsersDict != null && ViewBag.UsersDict.ContainsKey(Model.UserId)
+                ? ViewBag.UsersDict[Model.UserId]
+                : Model.UserId)
         </dd>
 
-        <dt class="col-sm-2">
-            Початок
-        </dt>
-        <dd class="col-sm-10">
-            @Model.ReservationStartDateTime.ToString("g")
-        </dd>
+        <dt class="col-sm-3">Початок бронювання:</dt>
+        <dd class="col-sm-9">@Model.ReservationStartDateTime.ToString("dd.MM.yyyy HH:mm")</dd>
 
-        <dt class="col-sm-2">
-            Завершення
-        </dt>
-        <dd class="col-sm-10">
-            @Model.ReservationEndDateTime?.ToString("g")
-        </dd>
+        <dt class="col-sm-3">Завершення бронювання:</dt>
+        <dd class="col-sm-9">@Model.ReservationEndDateTime?.ToString("dd.MM.yyyy HH:mm")</dd>
     </dl>
-
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Видалити" class="btn btn-primary btn-animated" />
-        <a asp-action="Index" class="btn btn-secondary btn-animated">← Назад до списку</a>
-    </form>
 </div>
+
+@if (Model.ReservationDocuments != null && Model.ReservationDocuments.Any())
+{
+    <div class="bg-white blur-box p-4 rounded shadow mb-4">
+        <h5>Документи:</h5>
+        <ul class="mb-0">
+            @foreach (var doc in Model.ReservationDocuments)
+            {
+                <li>
+                    @doc.DocumentInstance?.Document?.Title
+                    (інв. № @doc.DocumentInstance?.InventoryNumber)
+                </li>
+            }
+        </ul>
+    </div>
+}
+
+<div class="d-flex justify-content-center gap-3 mt-3">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-danger btn-animated">Редагувати</a>
+    <a asp-action="Index" class="btn btn-outline-primary btn-animated">Назад до списку</a>
+</div>
+

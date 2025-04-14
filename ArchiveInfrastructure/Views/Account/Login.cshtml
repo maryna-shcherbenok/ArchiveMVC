@@ -3,35 +3,36 @@
     ViewData["Title"] = "Увійти";
 }
 
-<div class="container mx-auto">
+<div class="container my-5">
     <div class="row justify-content-center">
-        <div class="col-12 col-lg-6">
+        <div class="col-12 col-md-8 col-lg-6">
             <div class="bg-white blur-box p-4 rounded shadow">
-                <h1 class="mt-5 mb-3 h3">Увійти</h1>
-            <form asp-action="Login" method="post">
-                <input type="hidden" asp-for="ReturnUrl" />
+                <h2 class="text-center mb-4">Увійти до архіву</h2>
 
-                <div class="mb-3">
-                    @Html.LabelFor(m => m.Email, new { @class = "form-label" })
-                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
-                </div>
+                <form asp-action="Login" method="post">
+                    <input type="hidden" asp-for="ReturnUrl" />
 
-                <div class="mb-3">
-                    @Html.LabelFor(m => m.Password, new { @class = "form-label" })
-                    @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
-                </div>
+                    <div class="mb-3">
+                        @Html.LabelFor(m => m.Email, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                    </div>
 
-                <div class="mb-3 form-check">
-                    @Html.CheckBoxFor(m => m.RememberMe, new { @class = "form-check-input" })
-                    @Html.LabelFor(m => m.RememberMe, new { @class = "form-check-label" })
-                </div>
+                    <div class="mb-3">
+                        @Html.LabelFor(m => m.Password, new { @class = "form-label" })
+                        @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+                    </div>
 
-                <div class="mb-3">
-                        <button type="submit" class="btn btn-primary btn-animated mb-3">Увійти</button>
-                </div>
-            </form>
+                    <div class="mb-3 form-check">
+                        @Html.CheckBoxFor(m => m.RememberMe, new { @class = "form-check-input" })
+                        @Html.LabelFor(m => m.RememberMe, new { @class = "form-check-label" })
+                    </div>
+
+                    <div class="d-flex justify-content-center mt-4">
+                        <button type="submit" class="btn btn-outline-danger btn-animated">Увійти</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

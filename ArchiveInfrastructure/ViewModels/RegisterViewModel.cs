@@ -5,10 +5,6 @@ namespace ArchiveInfrastructure.ViewModels
     public class RegisterViewModel
     {
         [Required]
-        [Display(Name = "Ім'я")]
-        public string Username { get; set; }
-
-        [Required]
         [Display(Name = "Email")]
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
@@ -23,9 +19,9 @@ namespace ArchiveInfrastructure.ViewModels
         [DataType(DataType.CreditCard)]
         public int ReaderCardNumber { get; set; }
 
-        // Поки прибрала це поле
-        [Display(Name = "Статус")]
-        public string? Position { get; set; }
+        [Required]
+        [Display(Name = "ПІБ користувача")]
+        public string FullName { get; set; }
 
         [Required]
         [Display(Name = "Пароль")]

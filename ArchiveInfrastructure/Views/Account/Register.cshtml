@@ -3,59 +3,56 @@
     ViewData["Title"] = "Реєстрація";
 }
 
-<div class="container mx-auto">
+<div class="container my-5">
     <div class="row justify-content-center">
-        <div class="col-12 col-lg-6">
+        <div class="col-12 col-md-10 col-lg-8">
             <div class="bg-white blur-box p-4 rounded shadow">
-                <h1 class="mt-5 mb-3 h3">Реєстрація</h1>
-            <form asp-action="Register" method="post">
-                <div class="mb-3">
-                    @Html.LabelFor(m => m.Email, new { @class = "form-label" })
-                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
-                </div>
+                <h2 class="text-center mb-4">Реєстрація користувача</h2>
 
-                <div class="mb-3">
-                    @Html.LabelFor(m => m.Username, new { @class = "form-label" })
-                    @Html.TextBoxFor(m => m.Username, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-danger" })
-                </div>
+                <form asp-action="Register" method="post">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(m => m.Email, new { @class = "form-label" })
+                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                        </div>
 
-                <div class="mb-3">
-                    @Html.LabelFor(m => m.PhoneNumber, new { @class = "form-label" })
-                    @Html.TextBoxFor(m => m.PhoneNumber, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.PhoneNumber, "", new { @class = "text-danger" })
-                </div>
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(m => m.FullName, new { @class = "form-label" })
+                            @Html.TextBoxFor(m => m.FullName, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "text-danger" })
+                        </div>
 
-                <div class="mb-3">
-                    @Html.LabelFor(m => m.ReaderCardNumber, new { @class = "form-label" })
-                    @Html.TextBoxFor(m => m.ReaderCardNumber, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.ReaderCardNumber, "", new { @class = "text-danger" })
-                </div>
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(m => m.PhoneNumber, new { @class = "form-label" })
+                            @Html.TextBoxFor(m => m.PhoneNumber, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.PhoneNumber, "", new { @class = "text-danger" })
+                        </div>
 
-                    <!--Поле Статус для користувачів-->
-                    <!-- <div class="mb-3">
-                    @Html.LabelFor(m => m.Position, new { @class = "form-label" })
-                    @Html.TextBoxFor(m => m.Position, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.Position, "", new { @class = "text-danger" })
-                    </div> -->
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(m => m.ReaderCardNumber, new { @class = "form-label" })
+                            @Html.TextBoxFor(m => m.ReaderCardNumber, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.ReaderCardNumber, "", new { @class = "text-danger" })
+                        </div>
 
-                <div class="mb-3">
-                    @Html.LabelFor(m => m.Password, new { @class = "form-label" })
-                    @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
-                </div>
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(m => m.Password, new { @class = "form-label" })
+                            @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+                        </div>
 
-                <div class="mb-3">
-                    @Html.LabelFor(m => m.PasswordConfirm, new { @class = "form-label" })
-                    @Html.PasswordFor(m => m.PasswordConfirm, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.PasswordConfirm, "", new { @class = "text-danger" })
-                </div>
+                        <div class="col-md-6 mb-3">
+                            @Html.LabelFor(m => m.PasswordConfirm, new { @class = "form-label" })
+                            @Html.PasswordFor(m => m.PasswordConfirm, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.PasswordConfirm, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
 
-                <div class="mb-3">
-                        <button type="submit" class="btn btn-primary btn-animated mb-3">Зареєструватися</button>
-                </div>
-            </form>
+                    <div class="d-flex justify-content-center gap-3 mt-4">
+                        <button type="submit" class="btn btn-outline-danger btn-animated">Зареєструватися</button>
+                        <a asp-action="Login" asp-controller="Account" class="btn btn-outline-primary btn-animated">Увійти</a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

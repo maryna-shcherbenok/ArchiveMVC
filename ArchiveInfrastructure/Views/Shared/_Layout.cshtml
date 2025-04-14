@@ -12,9 +12,9 @@
     <link rel="stylesheet" href="~/ArchiveInfrastructure.styles.css" asp-append-version="true" />
     @RenderSection("Styles", required: false)
 </head>
-<body>
+<body style="background-color: #FBF5F5;">
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3" style="margin: 0; padding: 0;">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white box-shadow shadow" style="margin: 0; padding: 0;">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
                     <img src="~/images/logo.png" alt="Логотип" height="60" />
@@ -122,13 +122,13 @@
     }
     <div class="@(isHomePage ? "" : "page-background")">
         <div class="container">
-            <main role="main" class="pb-3">
+            <main role="main" class="pb-3 mt-3">
                 @RenderBody()
             </main>
         </div>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <footer class="footer border-top text-muted custom-footer-shadow">
         <div class="container">
             <div class="row justify-content-between align-items-center">
                 <!-- Ліва частина -->

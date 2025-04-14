@@ -4,24 +4,21 @@
     ViewData["Title"] = "Видалити тип документа";
 }
 
-<h1>Видалити тип документа</h1>
+<h1 class="mb-4 text-center text-danger">Видалити тип документа</h1>
 
-<h3>Ви впевнені, що хочете видалити?</h3>
-<div>
-    <h4></h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
+<div class="bg-white blur-box p-4 rounded shadow col-md-6 mx-auto">
+    <h5 class="mb-3 text-center">Ви впевнені, що хочете видалити цей тип?</h5>
+
+    <dl class="row mb-4">
+        <dt class="col-sm-4">Назва типу:</dt>
+        <dd class="col-sm-8">@Model.Name</dd>
     </dl>
-    
+
     <form asp-action="Delete">
         <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Видалити" class="btn btn-primary btn-animated" /> |
-        <a asp-action="Index">Назад</a>
+        <div class="d-flex gap-2 justify-content-center">
+            <button type="submit" class="btn btn-outline-danger btn-animated">Видалити</button>
+            <a asp-action="Index" class="btn btn-outline-primary btn-animated">Скасувати</a>
+        </div>
     </form>
 </div>

@@ -92,7 +92,7 @@ th.actions-column, td.actions-column {
 
 .page-background {
     /* background-image: url('/images/hoto_2025-04-07_17-01-40.jpg');  фон для усіх сторінок */
-    background-color: #F8F8F8;
+    background-color: #FBF5F5;
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -102,4 +102,92 @@ th.actions-column, td.actions-column {
 
 table tbody tr {
     background-color: white !important;
+}
+
+.hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Ефект "підняття" при наведенні */
+.table-hover tbody tr:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s ease;
+    background-color: #fefefe;
+}
+
+/* Плавність і підкреслення клікабельних дій */
+.actions-column a {
+    text-decoration: none;
+    font-weight: 500;
+    color: #7A0505;
+    transition: color 0.2s ease;
+}
+
+.actions-column a:hover {
+    color: #a00000;
+    text-decoration: underline;
+}
+
+/* Кнопка "Забронювати" */
+.btn.btn-primary.btn-animated {
+    background-color: #7A0505;
+    border-color: #7A0505;
+    transition: background-color 0.2s ease;
+}
+
+.btn.btn-primary.btn-animated:hover {
+    background-color: #a00000;
+    border-color: #a00000;
+}
+
+.document-card {
+    border-radius: 12px;
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+    border: 1px solid #eee;
+}
+
+.document-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.document-card-horizontal {
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+    background-color: #fff;
+    margin-bottom: 1rem;
+}
+
+.document-card-horizontal:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 14px rgba(0, 0, 0, 0.08);
+}
+
+.btn-outline-danger {
+    color: #7A0505 !important;
+    border-color: #7A0505 !important;
+}
+
+.btn-outline-danger:hover {
+    background-color: #7A0505 !important;
+    color: #fff !important;
+}
+
+.text-danger {
+    color: #7A0505 !important; /* новий червоний колір */
+}
+
+.carousel-item img {
+    width: 100%;
+    height: 100vh; 
+    object-fit: cover; 
+}
+
+.custom-footer-shadow {
+    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1); /* тінь вгору для footer */
 }

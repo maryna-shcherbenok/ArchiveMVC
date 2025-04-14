@@ -4,7 +4,7 @@
     ViewData["Title"] = "Список документів";
 }
 
-<h1 class="mb-4">Список документів</h1>
+<h1 class="text-center mb-4">Список документів</h1>
 
 @if (ViewBag.FilterType != null)
 {
@@ -14,7 +14,7 @@
 <div class="row mb-4">
     <div class="col-12">
         <div class="bg-white p-4 rounded shadow">
-            <h4 class="mb-4">Пошук та фільтрація документів</h4>
+            <h4 class="text-center mb-4">Пошук та фільтрація документів</h4>
             <form asp-action="Index" method="get">
                 <div class="row">
                     <div class="col-md-6 mb-3">
@@ -68,8 +68,8 @@
                         </select>
                     </div>
                     <div class="col-md-6 mb-3 d-flex gap-2">
-                        <button type="submit" class="btn btn-primary btn-animated mt-auto">Пошук</button>
-                        <a asp-action="Index" class="btn btn-secondary btn-animated mt-auto">Скинути</a>
+                        <button type="submit" class="btn btn-outline-danger btn-animated mt-auto">Пошук</button>
+                        <a asp-action="Index" class="btn btn-outline-primary btn-animated mt-auto">Скинути</a>
                     </div>
                 </div>
             </form>
@@ -80,50 +80,43 @@
 <!-- Кнопки: тільки для admin -->
 @if (User.IsInRole("admin"))
 {
-    <a class="btn btn-primary btn-animated mb-3" asp-controller="Documents" asp-action="Import">Завантажити з файлу</a>
-    <a class="btn btn-primary btn-animated mb-3" asp-controller="Documents" asp-action="Export">Експортувати у файл</a>
+    <a class="btn btn-outline-danger btn-animated mb-3" asp-controller="Documents" asp-action="Import">Завантажити з файлу</a>
+    <a class="btn btn-outline-danger btn-animated mb-3" asp-controller="Documents" asp-action="Export">Експортувати у файл</a>
     <p>
-        <a asp-action="Create">Додати новий документ</a>
+        <a asp-action="Create" class="btn btn-outline-primary btn-animated btn-sm">Додати новий документ</a>
     </p>
 }
 
 <div class="bg-white blur-box p-4 rounded shadow">
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>@Html.DisplayNameFor(model => model.Title)</th>
-            <th>@Html.DisplayNameFor(model => model.PublicationDate)</th>
-            <th>@Html.DisplayNameFor(model => model.Language)</th>
-            <th>@Html.DisplayNameFor(model => model.Quantity)</th>
-            <th>Тип документа</th>
-            <th class="actions-column">Дії</th>
-        </tr>
-    </thead>
-    <tbody>
+    <div class="list-group">
         @foreach (var item in Model)
         {
-            <tr>
-                <td>@Html.DisplayFor(modelItem => item.Title)</td>
-                <td>@Html.DisplayFor(modelItem => item.PublicationDate)</td>
-                <td>@Html.DisplayFor(modelItem => item.Language)</td>
-                <td>@Html.DisplayFor(modelItem => item.Quantity)</td>
-                <td>@(item.Type != null ? item.Type.Name : "Без типу")</td>
-                    <td class="actions-column">
+            var collapseId = $"collapse-info-{item.Id}";
+            <div class="list-group-item d-flex justify-content-between align-items-start flex-column gap-2 shadow-sm rounded border-0 document-card-horizontal">
+
+                <!-- Верхня частина -->
+                <div class="w-100 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div class="flex-grow-1">
+                        <h5 class="mb-1">@item.Title</h5>
+                        <p class="mb-1 text-muted">Тип: @(item.Type?.Name ?? "Без типу")</p>
+                        <div class="small text-secondary">
+                            <span><strong>Дата публікації:</strong> @item.PublicationDate</span> |
+                            <span><strong>Мова:</strong> @item.Language</span> |
+                            <span><strong>Кількість:</strong> @item.Quantity</span>
+                        </div>
+                    </div>
+
+                    <div class="text-end d-flex flex-wrap gap-2 align-items-center justify-content-end">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-secondary btn-sm">Деталі</a>
+
                         @if (User.IsInRole("admin"))
                         {
-                            <a asp-action="Edit" asp-route-id="@item.Id">Редагувати</a>
-                            <span class="mx-2">|</span>
-                            <a asp-action="Details" asp-route-id="@item.Id">Деталі</a>
-                            <span class="mx-2">|</span>
-                            <a asp-action="Delete" asp-route-id="@item.Id">Видалити</a>
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">Редагувати</a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">Видалити</a>
                         }
                         else if (User.IsInRole("user"))
                         {
-                            <a asp-action="Details" asp-route-id="@item.Id">Деталі</a>
-                            <span class="mx-2">|</span>
-
                             var now = DateTime.Now;
-
                             var availableInstance = item.DocumentInstances?
                             .Where(instance =>
                             instance.Available &&
@@ -140,22 +133,38 @@
                                 <a asp-controller="Reservations"
                                    asp-action="Create"
                                    asp-route-documentInstanceId="@availableInstance.Id"
-                                   class="btn btn-primary btn-animated w-auto">
+                                   class="btn btn-outline-danger btn-sm">
                                     Забронювати
                                 </a>
                             }
                             else
                             {
-                                <span class="text-muted ms-2">Недоступний</span>
+                                <span class="text-muted small">Недоступний</span>
                             }
                         }
+                    </div>
+                </div>
 
-                    </td>
-            </tr>
+                <!-- Кнопка "Показати опис" -->
+                @if (!string.IsNullOrWhiteSpace(item.Info))
+                {
+                    <button class="btn btn-sm btn-link px-0" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#@collapseId"
+                            aria-expanded="false" aria-controls="@collapseId">
+                        📄 Показати опис
+                    </button>
+
+                    <div class="collapse w-100 mt-2" id="@collapseId">
+                        <div class="card card-body bg-light border-0 fst-italic">
+                            @item.Info
+                        </div>
+                    </div>
+                }
+            </div>
         }
-    </tbody>
-</table>
+    </div>
 </div>
+
 
 @section Scripts
 {

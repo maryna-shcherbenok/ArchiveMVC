@@ -4,137 +4,145 @@
     ViewData["Title"] = "Деталі документа";
 }
 
-<h1>Деталі документа</h1>
+<h1 class="mb-4 text-center">Деталі документа</h1>
 
-<div>
-    <h4>Документ</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Title)</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.Title)</dd>
+<div class="bg-white blur-box p-4 rounded shadow">
+    <div class="mb-4">
+        <h4 class="mb-3">Загальна інформація</h4>
+        <dl class="row">
+            <dt class="col-sm-3">Назва</dt>
+            <dd class="col-sm-9">@Model.Title</dd>
 
-        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.PublicationDate)</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.PublicationDate)</dd>
+            <dt class="col-sm-3">Дата публікації</dt>
+            <dd class="col-sm-9">@Model.PublicationDate</dd>
 
-        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Language)</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.Language)</dd>
+            <dt class="col-sm-3">Мова</dt>
+            <dd class="col-sm-9">@Model.Language</dd>
 
-        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Quantity)</dt>
-        <dd class="col-sm-10">@Html.DisplayFor(model => model.Quantity)</dd>
+            <dt class="col-sm-3">Кількість екземплярів</dt>
+            <dd class="col-sm-9">@Model.Quantity</dd>
 
-        @if (Model.Type != null)
+            @if (Model.Type != null)
+            {
+                <dt class="col-sm-3">Тип документа</dt>
+                <dd class="col-sm-9">@Model.Type.Name</dd>
+            }
+        </dl>
+    </div>
+
+    <div class="mb-4">
+        <h4 class="mb-3">Опис</h4>
+        @if (!string.IsNullOrWhiteSpace(Model.Info))
         {
-            <dt class="col-sm-2">Тип документа:</dt>
-            <dd class="col-sm-10">@Model.Type.Name</dd>
-        }
-    </dl>
-</div>
-
-<h3>Опис</h3>
-@if (!string.IsNullOrWhiteSpace(Model.Info))
-{
-    <p>@Model.Info</p>
-}
-else
-{
-    <p><em>Опис відсутній.</em></p>
-}
-
-<h3>Автори</h3>
-@if (Model.AuthorDocuments != null && Model.AuthorDocuments.Any())
-{
-    <ul>
-        @foreach (var author in Model.AuthorDocuments
-       .Select(ad => ad.Author)
-       .GroupBy(a => a.Id)
-       .Select(g => g.First()))
-        {
-            <li>@author.Name</li>
-        }
-    </ul>
-}
-else
-{
-    <p>Автори не вказані.</p>
-}
-
-<h3>Категорії</h3>
-@if (Model.CategoryDocuments != null && Model.CategoryDocuments.Any())
-{
-    <ul>
-        @foreach (var category in Model.CategoryDocuments
-       .Select(cd => cd.Category)
-       .GroupBy(c => c.Id)
-       .Select(g => g.First()))
-        {
-            <li>@category.Name</li>
-        }
-    </ul>
-}
-else
-{
-    <p>Категорії не вказані.</p>
-}
-
-@if (User.IsInRole("admin"))
-{
-    <div class="bg-white blur-box p-4 rounded shadow">
-        <h3>Екземпляри документа</h3>
-        @if (Model.DocumentInstances != null && Model.DocumentInstances.Any())
-        {
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Інвентарний номер</th>
-                        <th>Стан</th>
-                        <th>Доступність</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var instance in Model.DocumentInstances)
-                    {
-                        <tr>
-                            <td>@instance.InventoryNumber</td>
-                            <td>@instance.State</td>
-                            <td>@(instance.Available ? "Доступний" : "Недоступний")</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+            <p class="fst-italic">@Model.Info</p>
         }
         else
         {
-            <p><em>Екземпляри відсутні.</em></p>
+            <p><em>Опис відсутній.</em></p>
         }
     </div>
-}
 
-@if (User.IsInRole("user"))
-{
-    var availableInstance = Model.DocumentInstances.FirstOrDefault(i => i.Available);
-    if (availableInstance != null)
-    {
-        <form asp-controller="Reservations" asp-action="Create" method="get">
-            <input type="hidden" name="documentInstanceId" value="@availableInstance.Id" />
-            <button type="submit" class="btn btn-primary btn-animated w-auto">Забронювати</button>
-        </form>
-    }
-    else
-    {
-        <p><strong>Немає доступних екземплярів для бронювання.</strong></p>
-    }
-}
-else if (!User.Identity.IsAuthenticated)
-{
-<!-- Повністю приховано екземпляри -->
-<p><em>Увійдіть у систему, щоб переглянути можливість бронювання документа.</em></p>
-}
+    <div class="mb-4">
+        <h4 class="mb-3">Автори</h4>
+        @if (Model.AuthorDocuments?.Any() == true)
+        {
+            <ul class="list-unstyled">
+                @foreach (var author in Model.AuthorDocuments.Select(ad => ad.Author).DistinctBy(a => a.Id))
+                {
+                    <li>👤 @author.Name</li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p><em>Автори не вказані.</em></p>
+        }
+    </div>
 
-<!-- Кнопки -->
-<div class="mt-4">
+    <div class="mb-4">
+        <h4 class="mb-3">Категорії</h4>
+        @if (Model.CategoryDocuments?.Any() == true)
+        {
+            <ul class="list-unstyled">
+                @foreach (var category in Model.CategoryDocuments.Select(cd => cd.Category).DistinctBy(c => c.Id))
+                {
+                    <li>🏷 @category.Name</li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p><em>Категорії не вказані.</em></p>
+        }
+    </div>
+
     @if (User.IsInRole("admin"))
     {
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-animated">Редагувати</a>
+        <div class="mb-4">
+            <h4 class="mb-3">Екземпляри</h4>
+            @if (Model.DocumentInstances?.Any() == true)
+            {
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Інвентарний №</th>
+                            <th>Стан</th>
+                            <th>Доступність</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var instance in Model.DocumentInstances)
+                        {
+                            <tr>
+                                <td>@instance.InventoryNumber</td>
+                                <td>@instance.State</td>
+                                <td>
+                                    @if (instance.Available)
+                                    {
+                                        <span class="text-success">Доступний</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger">Недоступний</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p><em>Екземпляри відсутні.</em></p>
+            }
+        </div>
     }
-    <a asp-action="Index" class="btn btn-secondary btn-animated">← Назад до списку</a>
+
+    @if (User.IsInRole("user"))
+    {
+        var availableInstance = Model.DocumentInstances?.FirstOrDefault(i => i.Available);
+        if (availableInstance != null)
+        {
+            <form asp-controller="Reservations" asp-action="Create" method="get">
+                <input type="hidden" name="documentInstanceId" value="@availableInstance.Id" />
+                <button type="submit" class="btn btn-primary btn-animated">Забронювати</button>
+            </form>
+        }
+        else
+        {
+            <p><strong class="text-danger">Немає доступних екземплярів для бронювання.</strong></p>
+        }
+    }
+    else if (!User.Identity.IsAuthenticated)
+    {
+        <p class="text-muted"><em>Увійдіть у систему, щоб переглянути можливість бронювання документа.</em></p>
+    }
+
+    <div class="mt-4 d-flex gap-2">
+        @if (User.IsInRole("admin"))
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-danger btn-animated">Редагувати</a>
+        }
+        <a asp-action="Index" class="btn btn-outline-primary btn-animated">Назад до списку</a>
+    </div>
 </div>

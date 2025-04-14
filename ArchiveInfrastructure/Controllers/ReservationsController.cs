@@ -46,7 +46,7 @@ namespace ArchiveInfrastructure.Controllers
             {
                 var user = await _userManager.FindByIdAsync(userId!);
                 if (user != null)
-                    usersDict[userId!] = user.Email!;
+                    usersDict[userId!] = user.FullName!;
             }
 
             ViewBag.UsersDict = usersDict;
@@ -168,6 +168,7 @@ namespace ArchiveInfrastructure.Controllers
             _context.Reservations.Add(reservation);
             await _context.SaveChangesAsync();
 
+            TempData["SuccessMessage"] = "Бронювання успішно створено.";
             return RedirectToAction("MyReservations");
         }
 
@@ -187,6 +188,7 @@ namespace ArchiveInfrastructure.Controllers
             _context.Reservations.Remove(reservation);
 
             await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Бронювання успішно скасовано.";
             return RedirectToAction("MyReservations");
         }
 
@@ -252,6 +254,22 @@ namespace ArchiveInfrastructure.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        [Authorize(Roles = "user,admin")]
+        public async Task<IActionResult> DownloadTicket(int id, [FromServices] IPdfTicketService pdfService)
+        {
+            var reservation = await _context.Reservations
+                .Include(r => r.ReservationDocuments)
+                    .ThenInclude(rd => rd.DocumentInstance)
+                        .ThenInclude(di => di.Document)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (reservation == null || (User.IsInRole("user") && reservation.UserId != _userManager.GetUserId(User)))
+                return NotFound();
+
+            var pdf = pdfService.GenerateTicketPdf(reservation);
+            return File(pdf, "application/pdf", $"Reservation_{id}.pdf");
         }
     }
 }

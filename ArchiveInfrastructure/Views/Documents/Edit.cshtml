@@ -4,61 +4,60 @@
     ViewData["Title"] = "Редагувати документ";
 }
 
-<h1>Редагувати документ</h1>
+<h1 class="mb-4 text-center">Редагування документа</h1>
 
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="bg-white blur-box p-4 rounded shadow">
+    <form asp-action="Edit">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-            <div class="form-group">
-                <label asp-for="Title" class="control-label">Назва документа</label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
-            </div>
+        <div class="mb-3">
+            <label asp-for="Title" class="form-label">Назва документа</label>
+            <input asp-for="Title" class="form-control" />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
 
-            <div class="form-group">
-                <label asp-for="PublicationDate" class="control-label">Дата публікації документа</label>
-                <input asp-for="PublicationDate" class="form-control" />
-                <span asp-validation-for="PublicationDate" class="text-danger"></span>
-            </div>
+        <div class="mb-3">
+            <label asp-for="PublicationDate" class="form-label">Дата публікації</label>
+            <input asp-for="PublicationDate" class="form-control" />
+            <span asp-validation-for="PublicationDate" class="text-danger"></span>
+        </div>
 
-            <div class="form-group">
-                <label asp-for="Language" class="control-label">Мова документа</label>
-                <input asp-for="Language" class="form-control" />
-                <span asp-validation-for="Language" class="text-danger"></span>
-            </div>
+        <div class="mb-3">
+            <label asp-for="Language" class="form-label">Мова</label>
+            <input asp-for="Language" class="form-control" />
+            <span asp-validation-for="Language" class="text-danger"></span>
+        </div>
 
-            <div class="form-group">
-                <label asp-for="Info" class="control-label">Інформація про документ</label>
-                <textarea asp-for="Info" class="form-control"></textarea>
-                <span asp-validation-for="Info" class="text-danger"></span>
-            </div>
+        <div class="mb-3">
+            <label asp-for="Info" class="form-label">Опис / Інформація</label>
+            <textarea asp-for="Info" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Info" class="text-danger"></span>
+        </div>
 
-            <div class="form-group">
-                <label asp-for="TypeId" class="control-label">Тип документа</label>
-                <select asp-for="TypeId" class="form-control" asp-items="ViewBag.TypeList"></select>
-                <span asp-validation-for="TypeId" class="text-danger"></span>
-            </div>
+        <div class="mb-3">
+            <label asp-for="TypeId" class="form-label">Тип документа</label>
+            <select asp-for="TypeId" class="form-select" asp-items="ViewBag.TypeList"></select>
+            <span asp-validation-for="TypeId" class="text-danger"></span>
+        </div>
 
-            <div class="form-group">
-                <label for="authorIds" class="control-label">Автори документа</label>
-                <select id="authorSelect" name="authorIds" class="form-control" multiple asp-items="ViewBag.AuthorList"></select>
-            </div>
+        <div class="mb-3">
+            <label for="authorSelect" class="form-label">Автори</label>
+            <select id="authorSelect" name="authorIds" class="form-select" multiple asp-items="ViewBag.AuthorList"></select>
+        </div>
 
-            <div class="form-group">
-                <label for="categoryIds" class="control-label">Категорії документа</label>
-                <select id="categorySelect" name="categoryIds" class="form-control" multiple asp-items="ViewBag.CategoryList"></select>
-            </div>
+        <div class="mb-4">
+            <label for="categorySelect" class="form-label">Категорії</label>
+            <select id="categorySelect" name="categoryIds" class="form-select" multiple asp-items="ViewBag.CategoryList"></select>
+        </div>
 
-            <input type="hidden" asp-for="Id" />
-            <input type="hidden" asp-for="Quantity" />
-            <div class="form-group mt-3">
-                <button type="submit" class="btn btn-primary btn-animated">Зберегти</button>
-                <a asp-action="Index" class="btn btn-secondary btn-animated">Скасувати</a>
-            </div>
-        </form>
-    </div>
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="Quantity" />
+
+        <div class="d-flex gap-3">
+            <button type="submit" class="btn btn-outline-danger btn-animated">Зберегти</button>
+            <a asp-action="Index" class="btn btn-outline-primary btn-animated">Скасувати</a>
+        </div>
+    </form>
 </div>
 
 @section Scripts {

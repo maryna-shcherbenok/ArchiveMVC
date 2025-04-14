@@ -4,45 +4,56 @@
     ViewData["Title"] = "Мої бронювання";
 }
 
-<h2 class="mb-4">Мої бронювання</h2>
+<h2 class="mb-4 text-center">Мої бронювання</h2>
 
-<div class="blur-box p-4 rounded shadow">
-@if (!Model.Any())
+<!-- Повідомлення про успіх -->
+@if (TempData["SuccessMessage"] != null)
 {
-    <p><em>У вас поки що немає бронювань.</em></p>
+    <div class="alert alert-success alert-dismissible fade show col-md-8 mx-auto mb-4" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрити"></button>
+    </div>
 }
-else
-{
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Початок</th>
-                <th>Завершення</th>
-                <th>Назва документа</th>
-                <th>Дії</th>
-            </tr>
-        </thead>
-        <tbody>
+
+<div class="bg-white blur-box p-4 rounded shadow">
+    @if (!Model.Any())
+    {
+        <p class="text-muted"><em>У вас поки що немає бронювань.</em></p>
+    }
+    else
+    {
+        <div class="list-group">
             @foreach (var reservation in Model)
             {
                 foreach (var doc in reservation.ReservationDocuments)
                 {
-                    <tr>
-                        <td>@reservation.ReservationStartDateTime.ToString("g")</td>
-                        <td>@reservation.ReservationEndDateTime?.ToString("g")</td>
-                        <td>@doc.DocumentInstance.Document?.Title</td>
-                        <td>
-                            <form asp-action="Cancel" method="post" asp-route-id="@reservation.Id">
-                                    <button type="submit" class="btn btn-primary btn-animated mb-3"
+                    <div class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-3 shadow-sm rounded border-0 document-card-horizontal">
+                        <div class="flex-grow-1">
+                            <h5 class="mb-1">📄 @doc.DocumentInstance.Document?.Title</h5>
+                            <div class="small text-secondary">
+                                <span><strong>Початок:</strong> @reservation.ReservationStartDateTime.ToString("dd.MM.yyyy HH:mm")</span> |
+                                <span><strong>Завершення:</strong> @reservation.ReservationEndDateTime?.ToString("dd.MM.yyyy HH:mm")</span>
+                            </div>
+                        </div>
+
+                        <div class="text-end d-flex flex-wrap gap-2 align-items-center justify-content-end">
+                            <a asp-action="DownloadTicket"
+                               asp-route-id="@reservation.Id"
+                               class="btn btn-outline-primary btn-sm">
+                                🎫 Завантажити квиток
+                            </a>
+
+                            <form asp-action="Cancel" method="post" asp-route-id="@reservation.Id" class="mb-0">
+                                <button type="submit"
+                                        class="btn btn-outline-danger btn-sm"
                                         onclick="return confirm('Ви впевнені, що хочете скасувати бронювання?');">
                                     Скасувати
                                 </button>
                             </form>
-                        </td>
-                    </tr>
+                        </div>
+                    </div>
                 }
             }
-        </tbody>
-    </table>
-}
+        </div>
+    }
 </div>

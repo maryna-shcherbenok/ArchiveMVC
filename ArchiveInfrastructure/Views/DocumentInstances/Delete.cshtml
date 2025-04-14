@@ -4,36 +4,45 @@
     ViewData["Title"] = "Видалення екземпляра документа";
 }
 
-<h1>Видалення екземпляра документа</h1>
+<h1 class="mb-4 text-center">Видалення екземпляра документа</h1>
 
-<div>
-    <h4>Ви впевнені, що хочете видалити цей екземпляр?</h4>
+<div class="bg-white blur-box p-4 rounded shadow col-md-8 mx-auto">
+    <h4 class="mb-3 text-danger">Ви впевнені, що хочете видалити цей екземпляр?</h4>
     <hr />
-    <dl class="row">
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.InventoryNumber)</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.InventoryNumber)</dd>
+    <dl class="row mb-0">
+        <dt class="col-sm-4">Інвентарний номер:</dt>
+        <dd class="col-sm-8">@Model.InventoryNumber</dd>
 
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.State)</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.State)</dd>
+        <dt class="col-sm-4">Стан:</dt>
+        <dd class="col-sm-8">@Model.State</dd>
 
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Available)</dt>
-        <dd class="col-sm-9">@(Model.Available ? "Доступний" : "Не доступний")</dd>
+        <dt class="col-sm-4">Доступність:</dt>
+        <dd class="col-sm-8">
+            @if (Model.Available)
+            {
+                <span class="text-success">Доступний</span>
+            }
+            else
+            {
+                <span class="text-danger">Недоступний</span>
+            }
+        </dd>
 
-        <dt class="col-sm-3">Документ</dt>
-        <dd class="col-sm-9">@(Model.Document != null ? Model.Document.Title : "Документ не знайдено.")</dd>
+        <dt class="col-sm-4">Документ:</dt>
+        <dd class="col-sm-8">@Model.Document?.Title</dd>
     </dl>
 
     @if (ViewData["ErrorMessage"] != null)
     {
-        <div class="alert alert-danger">@ViewData["ErrorMessage"]</div>
+        <div class="alert alert-danger mt-3">@ViewData["ErrorMessage"]</div>
     }
 
     <form asp-action="Delete" onsubmit="return confirm('Ви дійсно хочете видалити цей екземпляр документа?');">
         <input type="hidden" asp-for="Id" />
 
-        <div class="mt-3">
-            <button type="submit" class="btn btn-primary btn-animated">Видалити</button>
-            <a asp-action="Index" class="btn btn-secondary btn-animated">Скасувати</a>
+        <div class="mt-4 d-flex gap-2 justify-content-center">
+            <button type="submit" class="btn btn-outline-danger btn-animated">Видалити</button>
+            <a asp-action="Index" class="btn btn-outline-primary btn-animated">Скасувати</a>
         </div>
     </form>
 </div>

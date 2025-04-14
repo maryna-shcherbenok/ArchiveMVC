@@ -4,47 +4,49 @@
     ViewData["Title"] = "Усі бронювання";
 }
 
-<h1 class="text-center">Усі бронювання</h1>
+<h1 class="text-center mb-4">Усі бронювання</h1>
 
-<!-- Діаграма бронювань по місяцях -->
-<div class="mb-4">
-    <h3 class="mt-5">Кількість бронювань по місяцях</h3>
-    <div id="reservationsByMonthChart" style="height: 300px;"></div>
+<div class="bg-white blur-box p-4 rounded shadow mb-4">
+    <!-- Діаграма бронювань по місяцях -->
+    <div class="mb-5">
+        <h4 class="text-center mb-3">Кількість бронювань по місяцях</h4>
+        <div id="reservationsByMonthChart" style="height: 250px;"></div>
+    </div>
 </div>
 
 <div class="bg-white blur-box p-4 rounded shadow">
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Користувач</th>
-                <th>Початок бронювання</th>
-                <th>Завершення бронювання</th>
-                <th>Документи</th> <!-- Додала -->
-                <th style="width: 400px;">Дії</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>@(ViewBag.UsersDict.ContainsKey(item.UserId) ? ViewBag.UsersDict[item.UserId] : item.UserId)</td>
-                    <td>@item.ReservationStartDateTime.ToString("g")</td>
-                    <td>@item.ReservationEndDateTime?.ToString("g")</td>
-                    <td>
-                        @foreach (var doc in item.ReservationDocuments)
+    <div class="list-group">
+        @foreach (var reservation in Model)
+        {
+            <div class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-3 shadow-sm rounded border-0 document-card-horizontal">
+                <div class="flex-grow-1">
+                    <h5 class="mb-1">Бронювання №@reservation.Id</h5>
+
+                    <div class="mb-1 text-muted small">
+                        <span><strong>Користувач:</strong> @(ViewBag.UsersDict.ContainsKey(reservation.UserId) ? ViewBag.UsersDict[reservation.UserId] : reservation.UserId)</span>
+                    </div>
+
+                    <div class="small text-secondary">
+                        <span><strong>Початок:</strong> @reservation.ReservationStartDateTime.ToString("dd.MM.yyyy HH:mm")</span> |
+                        <span><strong>Завершення:</strong> @reservation.ReservationEndDateTime?.ToString("dd.MM.yyyy HH:mm")</span>
+                    </div>
+
+                    <div class="mt-2 small">
+                        <strong>Документи:</strong>
+                        @foreach (var doc in reservation.ReservationDocuments)
                         {
-                            <div>@doc.DocumentInstance?.Document?.Title</div>
+                            <div>📄 @doc.DocumentInstance?.Document?.Title</div>
                         }
-                    </td>
-                    <td>
-                        <!-- <a asp-action="Edit" asp-route-id="@item.Id">Редагувати</a> | -->
-                        <a asp-action="Details" asp-route-id="@item.Id">Деталі</a> |
-                        <a asp-action="Delete" asp-route-id="@item.Id">Видалити</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                    </div>
+                </div>
+
+                <div class="text-end d-flex flex-wrap gap-2 align-items-center justify-content-end">
+                    <a asp-action="Details" asp-route-id="@reservation.Id" class="btn btn-outline-secondary btn-sm">Деталі</a>
+                    <a asp-action="Delete" asp-route-id="@reservation.Id" class="btn btn-outline-danger btn-sm">Видалити</a>
+                </div>
+            </div>
+        }
+    </div>
 </div>
 
 @section Scripts

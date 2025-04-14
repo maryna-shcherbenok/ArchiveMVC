@@ -1,29 +1,28 @@
 ﻿@model ArchiveDomain.Model.DocumentType
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Змінити тип документа";
 }
 
-<h1>Змінити тип документа</h1>
+<h1 class="mb-4 text-center">Редагування типу документа</h1>
 
-<h4></h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <input type="submit" value="Зберегти" class="btn btn-primary btn-animated" /> |
-                <a asp-action="Index">Назад</a>
-            </div>
-        </form>
-    </div>
+<div class="bg-white blur-box p-4 rounded shadow col-md-6 mx-auto">
+    <form asp-action="Edit">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label">Назва типу</label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <input type="hidden" asp-for="Id" />
+
+        <div class="d-flex gap-2 justify-content-center">
+            <button type="submit" class="btn btn-outline-danger btn-animated">Зберегти</button>
+            <a asp-action="Index" class="btn btn-outline-primary btn-animated">Скасувати</a>
+        </div>
+    </form>
 </div>
 
 @section Scripts {

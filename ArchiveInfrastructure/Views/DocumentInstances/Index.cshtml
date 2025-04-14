@@ -6,7 +6,7 @@
 
 <h1 class="mb-4 text-center">Список екземплярів документів</h1>
 
-<div class="row">
+<div class="row mb-4">
     <!-- Форма пошуку та фільтрації -->
     <div class="col-md-6">
         <div class="bg-white blur-box p-4 rounded shadow" style="min-height: 489px;">
@@ -44,8 +44,8 @@
                 </div>
 
                 <div class="d-flex gap-2 mt-2">
-                    <button type="submit" class="btn btn-primary btn-animated">Знайти</button>
-                    <a asp-action="Index" class="btn btn-secondary btn-animated">Скинути</a>
+                    <button type="submit" class="btn btn-outline-danger btn-animated">Знайти</button>
+                    <a asp-action="Index" class="btn btn-outline-primary btn-animated">Скинути</a>
                 </div>
 
             </form>
@@ -63,47 +63,43 @@
 </div>
 
 <p>
-    <a asp-action="Create">Додати новий екземпляр</a>
+    <a asp-action="Create" class="btn btn-outline-primary btn-animated btn-sm">Додати новий екземпляр</a>
 </p>
 
 <div class="bg-white blur-box p-4 rounded shadow">
-<table class="table table-bordered">
-    <thead class="thead-dark">
-        <tr>
-            <th>@Html.DisplayNameFor(model => model.InventoryNumber)</th>
-            <th>@Html.DisplayNameFor(model => model.State)</th>
-            <th>@Html.DisplayNameFor(model => model.Available)</th>
-            <th>Документ</th>
-            <th>Дії</th>
-        </tr>
-    </thead>
-    <tbody>
+    <div class="list-group">
         @foreach (var item in Model)
         {
-            <tr>
-                <td>@Html.DisplayFor(modelItem => item.InventoryNumber)</td>
-                <td>@Html.DisplayFor(modelItem => item.State)</td>
-                <td>
-                    @if (item.Available)
-                    {
-                        <span>Доступний</span>
-                    }
-                    else
-                    {
-                        <span>Недоступний</span>
-                    }
-                </td>
-                <td>@(item.Document != null ? item.Document.Title : "Без документа")</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Редагувати</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Деталі</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Видалити</a>
-                </td>
-            </tr>
+            <div class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-3 shadow-sm rounded border-0 document-card-horizontal">
+                <div class="flex-grow-1">
+                    <h5 class="mb-1">Інвентарний № @item.InventoryNumber</h5>
+                    <p class="mb-1 text-muted">Стан: @item.State</p>
+                    <div class="small text-secondary">
+                        <span><strong>Документ:</strong> @(item.Document?.Title ?? "Без документа")</span> |
+                        <span>
+                            <strong>Доступність:</strong>
+                            @if (item.Available)
+                            {
+                                <span class="text-success">Доступний</span>
+                            }
+                            else
+                            {
+                                <span class="text-danger">Недоступний</span>
+                            }
+                        </span>
+                    </div>
+                </div>
+
+                <div class="text-end d-flex flex-wrap gap-2 align-items-center justify-content-end">
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-secondary btn-sm">Деталі</a>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">Редагувати</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">Видалити</a>
+                </div>
+            </div>
         }
-    </tbody>
-</table>
+    </div>
 </div>
+
 
 @section Scripts
 {

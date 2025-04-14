@@ -1,38 +1,31 @@
 ﻿@model IEnumerable<ArchiveDomain.Model.Author>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Автори документів";
 }
 
-<h1>Автори документів</h1>
+<h1 class="mb-4">Автори документів</h1>
 
 <p>
-    <a asp-action="Create">Додати нового автора</a>
+    <a asp-action="Create" class="btn btn-outline-primary btn-animated btn-sm">Додати нового автора</a>
 </p>
 
 <div class="bg-white blur-box p-4 rounded shadow">
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Редагувати</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Деталі</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Видалити</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    <div class="list-group">
+        @foreach (var item in Model)
+        {
+            <div class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-3 shadow-sm rounded border-0 document-card-horizontal">
+                <div class="flex-grow-1">
+                    <h5 class="mb-1">@item.Name</h5>
+                </div>
+
+                <div class="text-end d-flex flex-wrap gap-2 align-items-center justify-content-end">
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-secondary btn-sm">Деталі</a>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">Редагувати</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">Видалити</a>
+                </div>
+            </div>
+        }
+    </div>
 </div>
+

@@ -4,5 +4,6 @@ namespace ArchiveDomain.Model;
 
 public partial class User : IdentityUser
 {
-    public string? Position { get; set; }
+    public string? FullName { get; set; }
+    //public int ReaderCardNumber { get; internal set; }
 }

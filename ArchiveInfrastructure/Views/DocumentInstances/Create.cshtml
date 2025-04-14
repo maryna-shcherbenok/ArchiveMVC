@@ -4,47 +4,43 @@
     ViewData["Title"] = "Додати екземпляр документа";
 }
 
-<h1>Додати екземпляр документа</h1>
+<h1 class="mb-4 text-center">Додати екземпляр документа</h1>
 
-<hr />
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="Create" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="bg-white blur-box p-4 rounded shadow col-md-8 mx-auto">
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <div class="form-group">
-                <label asp-for="State" class="control-label"></label>
-                <input asp-for="State" class="form-control" placeholder="Наприклад: Новий, Зношений чи інше" required />
-                <span asp-validation-for="State" class="text-danger"></span>
-            </div>
+        <div class="form-group mb-3">
+            <label asp-for="State" class="form-label">Стан екземпляра</label>
+            <input asp-for="State" class="form-control" placeholder="Наприклад: Новий, Зношений, Втрата..." required />
+            <span asp-validation-for="State" class="text-danger"></span>
+        </div>
 
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Available" /> Доступний
-                </label>
-            </div>
+        <div class="form-group form-check mb-3">
+            <input class="form-check-input" asp-for="Available" />
+            <label class="form-check-label" asp-for="Available">Доступний</label>
+        </div>
 
-            <div class="form-group">
-                <label asp-for="DocumentId" class="control-label"></label>
-                @if (ViewBag.DocumentId != null && ((IEnumerable<SelectListItem>)ViewBag.DocumentId).Any())
-                {
-                    <select asp-for="DocumentId" class="form-control" asp-items="ViewBag.DocumentId">
-                        <option value="">Оберіть документ</option>
-                    </select>
-                }
-                else
-                {
-                    <p class="text-danger">Немає доступних документів для вибору.</p>
-                }
-                <span asp-validation-for="DocumentId" class="text-danger"></span>
-            </div>
+        <div class="form-group mb-3">
+            <label asp-for="DocumentId" class="form-label">Документ</label>
+            @if (ViewBag.DocumentId != null && ((IEnumerable<SelectListItem>)ViewBag.DocumentId).Any())
+            {
+                <select asp-for="DocumentId" class="form-control" asp-items="ViewBag.DocumentId">
+                    <option value="">Оберіть документ</option>
+                </select>
+            }
+            else
+            {
+                <p class="text-danger">Немає доступних документів для вибору.</p>
+            }
+            <span asp-validation-for="DocumentId" class="text-danger"></span>
+        </div>
 
-            <div class="form-group mt-3">
-                <button type="submit" class="btn btn-primary btn-animated">Додати</button>
-                <a asp-action="Index" class="btn btn-secondary btn-animated">Скасувати</a>
-            </div>
-        </form>
-    </div>
+        <div class="mt-4 d-flex gap-2 justify-content-center">
+            <button type="submit" class="btn btn-outline-danger btn-animated">Додати</button>
+            <a asp-action="Index" class="btn btn-outline-primary btn-animated">Скасувати</a>
+        </div>
+    </form>
 </div>
 
 @section Scripts {

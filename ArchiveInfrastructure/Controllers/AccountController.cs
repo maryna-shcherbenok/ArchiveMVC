@@ -37,7 +37,8 @@ namespace ArchiveInfrastructure.Controllers
                 UserName = model.Email, //model.Username,
                 Email = model.Email,
                 PhoneNumber = model.PhoneNumber,
-                Position = model.Position
+                FullName = model.FullName,
+                //ReaderCardNumber = model.ReaderCardNumber 
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);

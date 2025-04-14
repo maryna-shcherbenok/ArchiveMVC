@@ -4,27 +4,36 @@
     ViewData["Title"] = "Деталі екземпляра";
 }
 
-<h1>Деталі екземпляра</h1>
+<h1 class="mb-4 text-center">Деталі екземпляра документа</h1>
 
-<div>
-    <h4>Інформація про екземпляр</h4>
+<div class="bg-white blur-box p-4 rounded shadow col-md-8 mx-auto">
+    <h4 class="mb-3">Інформація про екземпляр</h4>
     <hr />
-    <dl class="row">
-        <dt class="col-sm-2">Інвентарний номер:</dt>
-        <dd class="col-sm-10">@Model.InventoryNumber</dd>
+    <dl class="row mb-0">
+        <dt class="col-sm-4">Інвентарний номер:</dt>
+        <dd class="col-sm-8">@Model.InventoryNumber</dd>
 
-        <dt class="col-sm-2">Стан:</dt>
-        <dd class="col-sm-10">@Model.State</dd>
+        <dt class="col-sm-4">Стан:</dt>
+        <dd class="col-sm-8">@Model.State</dd>
 
-        <dt class="col-sm-2">Доступність:</dt>
-        <dd class="col-sm-10">@(Model.Available ? "Доступний" : "Недоступний")</dd>
+        <dt class="col-sm-4">Доступність:</dt>
+        <dd class="col-sm-8">
+            @if (Model.Available)
+            {
+                <span class="text-success fw-semibold">Доступний</span>
+            }
+            else
+            {
+                <span class="text-danger fw-semibold">Недоступний</span>
+            }
+        </dd>
 
-        <dt class="col-sm-2">Документ:</dt>
-        <dd class="col-sm-10">@Model.Document.Title</dd>
+        <dt class="col-sm-4">Документ:</dt>
+        <dd class="col-sm-8">@Model.Document?.Title</dd>
     </dl>
-</div>
 
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-animated">Редагувати</a>
-    <a asp-action="Index" class="btn btn-secondary btn-animated">Скасував</a>
+    <div class="mt-4 d-flex gap-2 justify-content-center">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-danger btn-animated">Редагувати</a>
+        <a asp-action="Index" class="btn btn-outline-primary btn-animated">Назад</a>
+    </div>
 </div>
