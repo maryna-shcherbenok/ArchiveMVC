@@ -77,15 +77,15 @@ namespace ArchiveInfrastructure.Controllers
                 .Include(d => d.Document)
                 .FirstOrDefaultAsync(d => d.Id == documentInstanceId);
 
-            if (documentInstance == null)
-                return NotFound("Екземпляр не знайдено.");
+            //if (documentInstance == null)
+            //    return NotFound("Екземпляр не знайдено.");
 
-            var isCurrentlyReserved = await _context.Reservations
-                .Where(r => r.ReservationDocuments.Any(rd => rd.DocumentInstanceId == documentInstanceId))
-                .AnyAsync(r => r.ReservationStartDateTime <= now && r.ReservationEndDateTime >= now);
+            //var isCurrentlyReserved = await _context.Reservations
+            //    .Where(r => r.ReservationDocuments.Any(rd => rd.DocumentInstanceId == documentInstanceId))
+            //    .AnyAsync(r => r.ReservationStartDateTime <= now && r.ReservationEndDateTime >= now);
 
-            if (isCurrentlyReserved)
-                return NotFound("Документ зараз заброньований. Виберіть інший час.");
+            //if (isCurrentlyReserved)
+            //    return NotFound("Документ зараз заброньований. Виберіть інший час.");
 
             if (documentInstance == null || !documentInstance.Available || documentInstance.State == "Пошкоджений")
             {

@@ -8,13 +8,6 @@
 
 <div class="bg-white blur-box p-4 rounded shadow mb-4">
     <dl class="row">
-        <dt class="col-sm-3">Користувач:</dt>
-        <dd class="col-sm-9">
-            @(ViewBag.UsersDict != null && ViewBag.UsersDict.ContainsKey(Model.UserId)
-                ? ViewBag.UsersDict[Model.UserId]
-                : Model.UserId)
-        </dd>
-
         <dt class="col-sm-3">Початок бронювання:</dt>
         <dd class="col-sm-9">@Model.ReservationStartDateTime.ToString("dd.MM.yyyy HH:mm")</dd>
 
